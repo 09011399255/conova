@@ -8,6 +8,7 @@ from .utils import generate_otp, verify_otp, set_cookies
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
 
 User = get_user_model()
@@ -100,4 +101,28 @@ class ConovaLoginView(TokenObtainPairView):
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
+        return response
+
+
+class ConovaTokenRefreshView(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+        if not refresh_token:
+            return Response(
+                {"message": "Refresh Token missing"},
+            )
+        serializer = TokenRefreshSerializer(data={"refresh": refresh_token})
+        try:
+            serializer.is_valid(raise_exception=True)
+            new_access_token = serializer.validated_data["access"]
+        except TokenError:
+            Response(
+                {"message": "Invalid refresh Token"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        
+        response = Response({"message": "Token refreshed successfully."})
+        
+        set_cookies(response, "access_token", new_access_token)
+        
         return response

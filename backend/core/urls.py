@@ -1,5 +1,10 @@
 from django.urls import path
-from .views import ConovaUserRegistrationView, ConovaActivateUserView, ConovaLoginView
+from .views import (
+    ConovaUserRegistrationView,
+    ConovaActivateUserView,
+    ConovaLoginView,
+    ConovaTokenRefreshView,
+)
 
 urlpatterns = [
     path(
@@ -13,5 +18,5 @@ urlpatterns = [
         name="activate-user",
     ),
     path("auth/login/", ConovaLoginView.as_view(), name="login"),
-    
+    path("auth/refresh/", ConovaTokenRefreshView.as_view(), name="refresh"),
 ]
