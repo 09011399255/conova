@@ -10,7 +10,7 @@ class ConovaUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)  
         user.set_password(password)
-        user.save(self._db)
+        user.save(using=self._db)
         
         return user
         
@@ -28,7 +28,7 @@ class ConovaUser(AbstractUser):
     ]
     username = None
     email = models.EmailField(unique=True)
-    role = models.CharField(choices=ROLES)
+    role = models.CharField(max_length=10, choices=ROLES, blank=True)
     
     objects = ConovaUserManager()
     
