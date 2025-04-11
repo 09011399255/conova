@@ -1,6 +1,11 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import ConovaCreateUserSerializer, ConovaActivateUserSerializer
+from .serializers import (
+    ConovaCreateUserSerializer,
+    ConovaActivateUserSerializer,
+    ConovaPasswordResetConfirmSerializer,
+    ConovaResetPasswordSerializer,
+)
 from django.core.mail import send_mail
 from rest_framework.response import Response
 from rest_framework import status
@@ -144,7 +149,62 @@ class ConovaLogoutView(APIView):
             {"message": "Logged out successfully."},
             status=status.HTTP_200_OK,
         )
-        
+
         response.delete_cookie("access_token")
         response.delete_cookie("refresh_token")
         return response
+
+
+class ConovaResetPasswordView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = ConovaResetPasswordSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serialized_data = serializer.data
+        email = serialized_data.get("email").strip().lower()
+        try:
+            user = User.objects.get(email=email)
+            otp = generate_otp(email)
+            send_mail(
+                subject="Password reset",
+                message=f"Your otp is {otp} and is valid for 5 minutes.",
+                from_email="<Conova <noreply@conova.ng.com>",
+                recipient_list=[
+                    email,
+                ],
+            )
+        except User.DoesNotExist:
+            pass
+
+        return Response(
+            {
+                "message": "If you entered a valid email, you'll receive an OTP to reset your password."
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class ConovaPasswordResetConfirmView(APIView):
+    def post(self, request):
+        serializer = ConovaPasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        password = request.data.get("new_password")
+        email = serializer.data.get("email").strip().lower()
+        otp = serializer.data.get("otp")
+        if verify_otp(email, otp):
+            try:
+                user = User.objects.get(email=email)
+                user.set_password(password)
+                user.save()
+                send_mail(
+                    subject="Password reset successful",
+                    message="Your password was successfully reset. If this wasn't you, please contact support immediately.",
+                    from_email="<Conova <noreply@conova.ng.com>",
+                    recipient_list=[
+                        email,
+                    ],
+                )
+                return Response({"message": "Password reset successful."})
+            except User.DoesNotExist:
+                pass
+        return Response({"message": "Invalid or expired OTP."})
