@@ -3,11 +3,14 @@ from .views import (
     ConovaLogoutView,
     ConovaPasswordChangeView,
     ConovaPasswordResetConfirmView,
+    ConovaUserDetailView,
+    ConovaUserProfileView,
     ConovaUserRegistrationView,
     ConovaActivateUserView,
     ConovaLoginView,
     ConovaTokenRefreshView,
     ConovaResetPasswordView,
+    ConovaUserView,
 )
 
 urlpatterns = [
@@ -39,4 +42,11 @@ urlpatterns = [
         ConovaPasswordChangeView.as_view(),
         name="change-password",
     ),
+    path("auth/users/", ConovaUserView.as_view(), name="users"),
+    path(
+        "auth/users/<int:pk>/",
+        ConovaUserDetailView.as_view(),
+        name="user-detail",
+    ),
+    path("auth/profile/", ConovaUserProfileView.as_view(), name="profile"),
 ]

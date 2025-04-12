@@ -43,12 +43,25 @@ class ConovaCreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConovaUser
         fields = (
+            "id",
             "first_name",
             "last_name",
             "role",
             "email",
             "password",
             "re_password",
+        )
+
+
+class ConovaUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConovaUser
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "role",
         )
 
 

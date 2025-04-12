@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
 from .serializers import (
+    ConovaUserSerializer,
     ConovaCreateUserSerializer,
     ConovaActivateUserSerializer,
     ConovaPasswordChangeSerializer,
@@ -20,6 +21,27 @@ from rest_framework.permissions import IsAuthenticated
 
 
 User = get_user_model()
+
+
+class ConovaUserView(ListAPIView):
+    serializer_class = ConovaUserSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+
+
+class ConovaUserDetailView(RetrieveUpdateDestroyAPIView):
+    serializer_class = ConovaUserSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+
+
+class ConovaUserProfileView(RetrieveUpdateDestroyAPIView):
+    serializer_class = ConovaUserSerializer
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 
 class ConovaUserRegistrationView(APIView):
