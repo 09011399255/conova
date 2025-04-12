@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
     ConovaLogoutView,
+    ConovaPasswordChangeView,
     ConovaPasswordResetConfirmView,
     ConovaUserRegistrationView,
     ConovaActivateUserView,
@@ -32,5 +33,10 @@ urlpatterns = [
         "auth/reset-password-confirm/",
         ConovaPasswordResetConfirmView.as_view(),
         name="password-reset-confirm",
+    ),
+    path(
+        "auth/change-password/",
+        ConovaPasswordChangeView.as_view(),
+        name="change-password",
     ),
 ]

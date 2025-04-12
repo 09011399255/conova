@@ -135,6 +135,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ADDITIONAL SETTINGS
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "core.authentication.ConovaAuthentication",
+    ]
+}
+
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 CACHES = {

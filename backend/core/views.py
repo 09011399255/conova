@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from .serializers import (
     ConovaCreateUserSerializer,
     ConovaActivateUserSerializer,
+    ConovaPasswordChangeSerializer,
     ConovaPasswordResetConfirmSerializer,
     ConovaResetPasswordSerializer,
 )
@@ -15,6 +16,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 
 
 User = get_user_model()
@@ -208,3 +210,24 @@ class ConovaPasswordResetConfirmView(APIView):
             except User.DoesNotExist:
                 pass
         return Response({"message": "Invalid or expired OTP."})
+
+
+class ConovaPasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print(request.user)
+        serializer = ConovaPasswordChangeSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        response = Response(
+            {"message": "Password change successfully and you've been logged out."},
+            status=status.HTTP_200_OK,
+        )
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+
+        return response
