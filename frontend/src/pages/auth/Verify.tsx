@@ -1,15 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
-import AuthLayout from "../../../components/layouts/AuthLayout";
-import AuthContainer from "../../../components/layouts/AuthContainer";
+
 import { useRef, useState } from "react";
+import AuthLayout from "../../components/layouts/AuthLayout";
+import AuthContainer from "../../components/layouts/AuthContainer";
+import EmailVerifiedModal from "./components/Modal";
+import Modal from "./components/Modal";
 
 const OTP_LENGTH = 6;
 const defaultOtpValues = new Array(OTP_LENGTH).fill("");
 
-export default function ResetOtpVerification() {
+export default function Verify() {
     const [otpValues, setOtpValues] = useState(defaultOtpValues);
     const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
     const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
 
     const handleChange = (index: number, value: string) => {
         if (!/^\d?$/.test(value)) return;
@@ -35,11 +40,11 @@ export default function ResetOtpVerification() {
         e.preventDefault();
         const otp = otpValues.join("");
         console.log("Submitted OTP:", otp);
+        setIsModalOpen(true);
 
         // Add actual verification logic here
 
         // For now, go to reset-password page
-        navigate("/reset-password");
     };
 
     return (
@@ -54,7 +59,7 @@ export default function ResetOtpVerification() {
 
                     <form
                         onSubmit={handleSubmitOtp}
-                        className="relative w-full max-w-md md:w-[400px] space-y-6 z-10"
+                        className="relative w-full max-w-md md:w-[400px]  space-y-6 z-10"
                     >
                         <div className="text-center">
                             <h2 className="text-2xl font-bold lg:mt-[50px] text-black">
@@ -98,19 +103,22 @@ export default function ResetOtpVerification() {
 
                         <p className="text-sm text-center text-[#A5A8B5]">
                             Didn't get any code?{" "}
-                            <Link to="/register" className="text-[#134562] hover:underline">
+                            <Link to="/register" className="text-[#134562] font-bold hover:underline">
                                 Resend OTP
                             </Link>
                         </p>
 
-                        <p className="text-sm text-center">
-                            <Link to="/login" className="text-[#134562] flex items-center justify-center">
-                                <img src="/images/arrow.png" alt="arrow-left" className="inline-block mr-2" />
-                                Back to Sign in
-                            </Link>
-                        </p>
                     </form>
                 </div>
+                {isModalOpen && (
+                    <Modal
+                        onClose={() => setIsModalOpen(false)}
+                        title="Email Verified Successfully"
+                        message="Your email has been successfully verified. You can now continue."
+                        buttonText="Continue"
+                        redirectTo="/login"
+                    />
+                )}
             </AuthContainer>
         </AuthLayout>
     );

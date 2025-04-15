@@ -6,7 +6,7 @@ import { FaApple } from "react-icons/fa";
 import { Eye, EyeOff } from "lucide-react";
 import { loginSchema, LoginSchema } from "../../schemas/loginSchema";
 import AuthLayout from "../../components/layouts/AuthLayout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthContainer from "../../components/layouts/AuthContainer";
 
 export default function Login() {
@@ -18,10 +18,13 @@ export default function Login() {
         resolver: zodResolver(loginSchema),
     });
 
+    const navigate = useNavigate()
+
     const [showPassword, setShowPassword] = useState(false);
 
     const onSubmit = (data: LoginSchema) => {
         console.log(data);
+        navigate("/account-type")
     };
 
     return (
@@ -31,7 +34,7 @@ export default function Login() {
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
-                        className="absolute top-1/2 opacity-40 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
                     />
 
                     <form

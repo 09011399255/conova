@@ -4,26 +4,49 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import { Eye, EyeOff } from "lucide-react";
-import { loginSchema, LoginSchema } from "../../schemas/loginSchema";
 import AuthLayout from "../../components/layouts/AuthLayout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthContainer from "../../components/layouts/AuthContainer";
+import { registerSchema, RegisterSchema } from "../../schemas/registerSchema";
+import CustomRoleDropdown from "../../components/ui/CustomRoleDropdown";
+
+import { useWatch } from "react-hook-form";
+import { CheckCircle, Circle } from "lucide-react";
+import { PasswordRules } from "./components/PasswordRules";
 
 export default function Register() {
+    const navigate = useNavigate();
     const {
         register,
+        getValues,
+        setValue,
         handleSubmit,
+        control,
         formState: { errors },
-    } = useForm<LoginSchema>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<RegisterSchema>({
+        resolver: zodResolver(registerSchema),
+         mode: "onChange",
     });
 
-    const [showPassword, setShowPassword] = useState(false);
+    const passwordValue = useWatch({ control, name: "password", defaultValue: "" });
 
-    const onSubmit = (data: LoginSchema) => {
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
+    const onSubmit = (data: RegisterSchema) => {
         console.log(data);
+        navigate("/verify");
     };
 
+    const [selectedRole, setSelectedRole] = useState<string>(getValues("role"));
+
+    const handleRoleChange = (val: string) => {
+        const role = val as "user" | "admin";
+        setSelectedRole(role);
+        setValue("role", role);
+    };
     return (
         <AuthLayout>
             <AuthContainer >
@@ -31,16 +54,16 @@ export default function Register() {
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
-                        className="absolute top-1/2 opacity-40 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
                     />
 
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="relative w-full max-w-md space-y-6 z-10"
+                        className="relative w-full max-w-md space-y-6 z-10 "
                     >
                         <div className="text-center ">
                             <h2 className="text-2xl font-bold lg:mt-[50px] text-black">
-                                Create an account on Conova!
+                                Let’s Get You Started!
                             </h2>
                             <p className="text-sm text-[#A5A8B5] mt-1">
                                 Book shared workspaces with ease. Collaborate, grow, and innovate.
@@ -72,40 +95,136 @@ export default function Register() {
 
                         <div>
                             <label className="block text-sm text-black">
-                                Email Address
+                                Full Name
                             </label>
                             <input
-                                type="email"
-                                {...register("email")}
-                                className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.email
+                                type="text"
+                                {...register("fullName")}
+                                className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.fullName
                                     ? "border-[#EF4444] focus:ring-[#EF4444]"
                                     : "border-[#D7D3D0] text-[#292524] focus:ring-[#292524]"
                                     }`}
-                                placeholder="Enter email address"
+                                placeholder="e.g., Oluwatofunmi Ishola"
                             />
-                            {errors.email && (
-                                <p className="text-[#EF4444] text-xs mt-1">{errors.email.message}</p>
+                            {errors.fullName && (
+                                <p className="text-[#EF4444] text-xs mt-1">{errors.fullName.message}</p>
                             )}
 
                         </div>
                         <div>
-                            <label className="block text-sm text-black">
-                                Email Address
-                            </label>
+                            <label className="block text-sm text-black">Phone Number</label>
+                            <input
+                                type="tel"
+                                {...register("phoneNumber")}
+                                className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.phoneNumber
+                                    ? "border-[#EF4444] focus:ring-[#EF4444]"
+                                    : "border-[#D7D3D0] text-[#292524] focus:ring-[#292524]"
+                                    }`} placeholder="Enter phone number"
+                            />
+                            {errors.phoneNumber && <p className="text-xs text-[#EF4444] mt-1">{errors.phoneNumber.message}</p>}
+                        </div>
+
+
+
+                        <div>
+                            <label className="block text-sm text-black">Work Email Address</label>
                             <input
                                 type="email"
                                 {...register("email")}
                                 className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.email
                                     ? "border-[#EF4444] focus:ring-[#EF4444]"
                                     : "border-[#D7D3D0] text-[#292524] focus:ring-[#292524]"
-                                    }`}
-                                placeholder="Enter email address"
+                                    }`} placeholder="e.g., tofunmi.ishola@company.com"
                             />
-                            {errors.email && (
-                                <p className="text-[#EF4444] text-xs mt-1">{errors.email.message}</p>
+                            {errors.email && <p className="text-xs text-[#EF4444] mt-1">{errors.email.message}</p>}
+                        </div>
+
+                        <CustomRoleDropdown
+                            value={selectedRole}
+                            onChange={handleRoleChange}
+                            error={errors.role?.message}
+                        />
+
+
+                        <div>
+                            <label className="block text-sm  text-black">
+                                Create a  Password
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    {...register("password")}
+                                    className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.password
+                                        ? "border-[#EF4444] focus:ring-[#EF4444]"
+                                        : "border-[#D7D3D0] text-[#292524] focus:ring-[#292524]"
+                                        }`} placeholder="Create a password"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-4 text-[#134562]"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                            {errors.password && (
+                                <p className="text-[#EF4444] text-xs mt-1">{errors.password.message}</p>
+                            )}
+
+                            <PasswordRules password={passwordValue} />
+
+
+                        </div>
+
+
+                        <div>
+                            <label className="block text-sm  text-black">
+                                Confirm  password
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    {...register("confirmPassword")}
+                                    className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.confirmPassword
+                                        ? "border-[#EF4444] focus:ring-[#EF4444]"
+                                        : "border-[#D7D3D0] text-[#292524] focus:ring-[#292524]"
+                                        }`} placeholder="Confirm password"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-3 top-4 text-[#134562]"
+                                >
+                                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                            {errors.confirmPassword && (
+                                <p className="text-[#EF4444] text-xs mt-1">{errors.confirmPassword.message}</p>
                             )}
 
                         </div>
+                        <div>
+                            <div className="flex items-start mt-4">
+                                <input
+                                    type="checkbox"
+                                    id="terms"
+                                    {...register("terms")}
+                                    className="mt-[2px] accent-[#134562] w-4 h-4 rounded border border-gray-300"
+                                />
+                                <label htmlFor="terms" className="ml-3 block text-sm text-gray-700 hover:text-underline">
+                                    I agree to the
+                                    <span className="text-[#134562] font-medium cursor-pointer ml-1 hover:underline">
+                                        Terms and Conditions
+                                    </span>
+                                </label>
+
+
+                            </div>
+                            {errors.terms && (
+                                <p className="text-xs block text-[#EF4444] mt-1">{errors.terms.message}</p>
+                            )}
+                        </div>
+
 
                         <button
                             type="submit"
@@ -126,3 +245,6 @@ export default function Register() {
 
     );
 }
+
+
+

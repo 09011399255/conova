@@ -1,26 +1,25 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../../components/layouts/AuthLayout";
 import AuthContainer from "../../../components/layouts/AuthContainer";
-import { loginSchema, LoginSchema } from "../../../schemas/loginSchema";
+import { resetSchema, ResetSchema } from "../../../schemas/resetSchema";
 
 export default function Reset() {
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginSchema>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<ResetSchema>({
+        resolver: zodResolver(resetSchema),
     });
 
-
-    const onSubmit = (data: LoginSchema) => {
-        console.log(data);
-    };
-
     const navigate = useNavigate();
+
+    const onSubmit = (data: ResetSchema) => {
+        console.log(data);
+        navigate("/reset-otp-verification");
+    };
 
     return (
         <AuthLayout>
@@ -29,7 +28,7 @@ export default function Reset() {
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
-                        className="absolute top-1/2 w-[60%] opacity-40 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 w-[60%] opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
                     />
 
                     <form
@@ -67,7 +66,6 @@ export default function Reset() {
                         </div>
 
                         <button
-                            onClick={() => navigate("/reset-otp-verification")}
                             type="submit"
                             className="w-full bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
                         >
