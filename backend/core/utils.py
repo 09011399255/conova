@@ -53,11 +53,13 @@ def generate_qr_code(url):
     return File(buffer, name="qr_code.png")
 
 
-def rename_avatar(instance, filename):
-    ext = os.path.splitext(filename)[1]
-    id = instance.id
-    filename = f"user_{id}{ext}"
-    return os.path.join("Avatars", filename)
+def rename_object(path):
+    def rename(instance, filename):
+        ext = os.path.splitext(filename)[1]
+        id = instance.id
+        filename = f"user_{id}{ext}"
+        return os.path.join(path, filename)
+    return rename
 
 def rename_qr_code(instance, filename):
     ext = os.path.splitext(filename)[1]

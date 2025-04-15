@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "cloudinary_storage",
+    "phonenumber_field",
     #Local
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
