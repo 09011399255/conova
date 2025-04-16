@@ -23,6 +23,7 @@ const App: React.FC = () => {
         <Route path="/reset-otp-verification" element={<ResetOtpVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/account-type" element={<AccountType />} />
+        <Route path="/dashboard" element={<Login />} />
 
       </Routes>
     </BrowserRouter>

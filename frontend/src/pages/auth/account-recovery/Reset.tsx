@@ -36,7 +36,7 @@ export default function Reset() {
                         className="relative w-full max-w-md space-y-6 z-10"
                     >
                         <div className="text-center ">
-                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black">
+                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black mb-[12px]">
                                 Reset Password
                             </h2>
                             <p className="text-sm text-[#A5A8B5] mt-1">

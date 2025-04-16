@@ -29,15 +29,15 @@ export default function AccountType() {
 
                     <div className="relative z-10">
                         <div className="text-center">
-                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black">
+                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black mb-[12px]">
                                 What kind of account would you open?
                             </h2>
-                            <p className="text-sm text-[#A5A8B5] mt-1">
+                            <p className="text-sm text-[#A5A8B5]">
                                 This helps us tailor your workspace experience
                             </p>
                         </div>
 
-                        <div className="flex gap-4 justify-center mt-6">
+                        <div className="flex gap-4 justify-center mt-[40px] mb-9">
                             <button
                                 type="button"
                                 onClick={() => handleSelect("employee")}
@@ -85,7 +85,7 @@ export default function AccountType() {
                             </button>
                         </div>
 
-                        <div className="flex justify-center mt-6">
+                        <div className="flex justify-center mt-[40px]">
                             <button
                                 disabled={!selectedType}
                                 onClick={handleContinue}
