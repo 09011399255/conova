@@ -109,31 +109,51 @@ const team: TeamMember[] = [
 
 
 const TeamSchedule = () => {
-    const [startDate, setStartDate] = useState(new Date());
+    const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+    const [startDate, endDate] = dateRange;
 
     return (
         <div className="bg-[#FAFAFA] z-[1] relative px-[16px] py-[24px] rounded-[16px] border border-[#DCDFE3]  mt-[24px]">
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-4">
                     <h2 className=" text-black font-[700] text-[20px]">Team Schedule</h2>
-                    <DatePicker
-                        selected={startDate}
-                        onChange={(date: Date | null) => date && setStartDate(date)}
-                        className="border px-3 py-1 hidden sm:block rounded-md text-sm shadow-sm"
-                        dateFormat="MMM d - MMM d"
-                    />
+                    <div className="relative hidden sm:block">
+                        <DatePicker
+                            selectsRange
+                            startDate={startDate}
+                            endDate={endDate}
+                            onChange={(update: [Date | null, Date | null]) => {
+                                setDateRange(update);
+                            }}
+                            dateFormat="MMM d"
+                            placeholderText="Select date range"
+                            className="border px-4 py-2 rounded-md  text-sm bg-transparent w-full cursor-pointer"
+                            calendarClassName="z-50"
+                            popperPlacement="bottom-end"
+                            isClearable
+                        />
+                    </div>
                 </div>
 
                 <button className="text-[16px] font-[700] text-[#134562] hover:underline">See all</button>
 
             </div>
-            <DatePicker
-                selected={startDate}
-                onChange={(date: Date | null) => date && setStartDate(date)}
-                className="border px-3 py-1 block sm:hidden rounded-md text-sm shadow-sm mb-[10px] sm:mb-0"
-                dateFormat="MMM d - MMM d"
-            />
-
+            <div className="relative sm:hidden block  ">
+                <DatePicker
+                    selectsRange
+                    startDate={startDate}
+                    endDate={endDate}
+                    onChange={(update: [Date | null, Date | null]) => {
+                        setDateRange(update);
+                    }}
+                    dateFormat="MMM d"
+                    placeholderText="Select date range"
+                    className="border px-4 py-2  rounded-md text-sm bg-transparent w-full cursor-pointer"
+                    calendarClassName="z-50"
+                    popperPlacement="bottom-end"
+                    isClearable
+                />
+            </div>
 
             <div>
                 {team.map((member, index) => (

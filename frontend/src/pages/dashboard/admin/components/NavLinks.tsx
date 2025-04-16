@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom';
 
 const navLinks = [
-    { name: 'Overview', path: '/dashboard' },
-    { name: 'Bookings', path: '/bookings' },
+    { name: 'Overview', path: '/dashboard/overview' },
+    { name: 'Bookings', path: '/dashboard/bookings' },
     { name: 'Spaces', path: '/spaces' },
-    { name: 'Users & Roles', path: '/users-roles' },
+    { name: 'Users & Roles', path: '/dashboard/users-roles' },
     { name: 'Availability', path: '/availability' },
     { name: 'Reports & Analytics', path: '/reports-analytics' },
     { name: 'Integrations', path: '/integrations' },

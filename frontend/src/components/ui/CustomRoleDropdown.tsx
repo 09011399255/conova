@@ -3,7 +3,6 @@ import { Fragment } from 'react';
 import { ChevronDown } from "lucide-react";
 
 const roles = [
-    { label: 'Choose role', value: '' },
     { label: 'User', value: 'user' },
     { label: 'Admin', value: 'admin' }
 ];
@@ -12,12 +11,14 @@ export default function CustomRoleDropdown({
     value,
     onChange,
     error,
+    placeholder = 'Select Role'
 }: {
     value: string;
     onChange: (val: string) => void;
+    placeholder?: string;
     error?: string;
 }) {
-    const selectedRole = roles.find((r) => r.value === value) || roles[0];
+    const selectedRole = roles.find((r) => r.value === value) || { label: placeholder, value: '' };
 
     return (
         <div className='w-full '>
