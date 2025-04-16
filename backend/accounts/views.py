@@ -20,15 +20,13 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from dj_rest_auth.registration.views import SocialLoginView
+from django.conf import settings
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from django.utils.crypto import get_random_string
 
 
 User = get_user_model()
-
-
-class GoogleLogin(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
 
 
 class ConovaUserView(ListAPIView):
@@ -289,6 +287,81 @@ class ConovaResendOTPView(APIView):
             {"message": "OTP resend successfully."},
             status=status.HTTP_200_OK,
         )
+
+
+class GoogleLoginView(APIView):
+    def post(self, request):
+        token = request.data.get("token", None)
+        if not token:
+            return Response(
+                {"message": "Google token is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            # verify the token
+            id_info = id_token.verify_oauth2_token(
+                token,
+                requests.Request(),
+                settings.GOOGLE_OAUTH2_CLIENT_ID,
+            )
+
+            # Check issure
+            if id_info["iss"] not in [
+                "accounts.google.com",
+                "https://accounts.google.com",
+            ]:
+                return Response(
+                    {"message": "Wrong issuer"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Get or create user
+            email = id_info["email"]
+
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                # Create a new user
+                user = User.objects.create_user(
+                    email=email,
+                    full_name=id_info.get("name", ""),
+                    password=get_random_string(12),
+                    avatar=id_info.get("picture"),
+                )
+
+            checkin_url = request.build_absolute_uri(
+                reverse("checkin-view", kwargs={"personal_token": user.personal_token})
+            )
+            user.qr_code_image = generate_qr_code(checkin_url)
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            response = Response(
+                {
+                    "message": "User Sign in successfully.",
+                    "user": {
+                        "id": user.id,
+                        "email": user.email,
+                        "full_name": user.full_name,
+                    },
+                }
+            )
+
+            set_cookies(response, "access_token", access_token)
+            set_cookies(response, "refresh_token", refresh_token)
+
+            return response
+
+        except ValueError:
+            return Response(
+                {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        print(token)
+        return Response("Sucess")
 
 
 class ConovaCheckInView(APIView):

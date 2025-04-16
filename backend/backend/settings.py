@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = True#config("DEBUG", default=True, cast=bool)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -49,15 +49,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     # Third party
-    # "allauth",
-    # "allauth.account",
-    # "allauth.socialaccount",
-    # "allauth.socialaccount.providers.google",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework.authtoken",
-    # "dj_rest_auth",
-    # "dj_rest_auth.registration",
     "cloudinary_storage",
     "phonenumber_field",
     "drf_spectacular",
@@ -71,7 +65,6 @@ SITE_ID = 1
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    # "allauth.account.middleware.AccountMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -209,39 +202,6 @@ SIMPLE_JWT = {
     "AUTH_BEARER_TYPES": ("Bearer",),
 }
 
-# Google Authentication settings
-# ACCOUNT_AUTHENTICATION_METHOD = "email"
-# ACCOUNT_USERNAME_REQUIRED = False
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-# ACCOUNT_LOGIN_METHODS = {"email"}
-# ACCOUNT_EMAIL_VERIFICATION = "none"
-# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-
-# GOOGLE_OAUTH_CLIENT_ID = config("GOOGLE_OAUTH_CLIENT_ID")
-# GOOGLE_OAUTH_CLIENT_SECRET = config("GOOGLE_OAUTH_CLIENT_SECRET")
-# # GOOGLE_OAUTH_CALLBACK_URL = config("GOOGLE_OAUTH_CALLBACK_URL")
-
-# Authenticate if local account with the email already exist
-# SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
-# # connect local account account and social account if local account with that email address exists
-# SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
-# SOCIALACCOUNT_PROVIDERS = {
-#     "google": {
-#         "APPS": [
-#             {
-#                 "client_id": GOOGLE_OAUTH_CLIENT_ID,
-#                 "secret": GOOGLE_OAUTH_CLIENT_SECRET,
-#                 "key": "",
-#             },
-#         ],
-#         "SCOPE": ["profile", "email"],
-#         "AUTH_PARAMS": {
-#             "access_type": "online",
-#         },
-#     }
-# }
-
 # Cloudinary storage
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUD_NAME"),
@@ -258,3 +218,6 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     # "SERVERS":
 }
+
+#GOOGLE AUTH
+GOOGLE_OAUTH2_CLIENT_ID = config("GOOGLE_OAUTH2_CLIENT_ID")
