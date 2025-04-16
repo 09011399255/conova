@@ -23,7 +23,7 @@ export default function CustomDropdown({
     const selected = options.find(opt => opt.value === value) || { label: placeholder, value: '' };
 
     return (
-        <div className="relative w-full">
+        <div className="relative w-full min-w-0">
             <Listbox value={value} onChange={onChange}>
                 {({ open }) => (
                     <>
@@ -44,13 +44,15 @@ export default function CustomDropdown({
                             leaveFrom="opacity-100 translate-y-0"
                             leaveTo="opacity-0 -translate-y-2"
                         >
-                            <Listbox.Options className="absolute z-100 mt-1 w-full bg-white border border-gray-200 rounded-[8px] custom-scrollbar max-h-[200px] overflow-y-auto text-sm">
+                            <Listbox.Options
+                                className="absolute z-50 mt-1 w-full min-w-full bg-white border border-gray-200 rounded-[8px] custom-scrollbar max-h-[200px] overflow-y-auto text-sm"
+                            >
                                 {options.map(opt => (
                                     <Listbox.Option
                                         key={opt.value}
                                         value={opt.value}
                                         className={({ active }) =>
-                                            `cursor-pointer rounded-[3px] border-b border-[#DCDFE3] px-4 py-4 ${active ? 'bg-[#134562] text-white' : 'text-black'
+                                            `cursor-pointer rounded-[3px] z-100 border-b border-[#DCDFE3] px-4 py-4 ${active ? 'bg-[#134562] text-white' : 'text-black'
                                             }`
                                         }
                                     >

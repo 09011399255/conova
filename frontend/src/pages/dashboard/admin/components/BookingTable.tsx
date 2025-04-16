@@ -155,10 +155,9 @@ export default function BookingTable() {
                     </button>
                 </div>
             )}
-            <div className="mt-[16px] bg-white rounded-xl border border-[#DCDFE3]">
+            <div className="mt-[16px] custom-scrollbar bg-white rounded-xl border border-[#DCDFE3] overflow-x-auto">
+                <table className="min-w-[900px] w-full text-sm text-left border border-[#FAFAFA] rounded-md overflow-hidden">
 
-
-                <table className="w-full text-sm text-left border border-[#FAFAFA] rounded-md overflow-hidden">
                     <thead className="bg-[#FAFAFA]  text-black text-[14px] font-[100]">
                         <tr >
                             <th className="px-3 py-3">

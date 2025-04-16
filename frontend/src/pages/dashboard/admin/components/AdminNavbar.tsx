@@ -23,7 +23,7 @@ const AdminNavbar = () => {
 
 
     return (
-        <div className="bg-[#134260] fixed z-[1000]  top-0 left-0 right-0    text-white max-940:px-[15px] px-[50px] max-860:px-[10px] py-4  overflow-hidden" >
+        <div className="bg-[#134260] fixed z-[800]  top-0 left-0 right-0    text-white max-940:px-[15px] px-[50px] max-860:px-[10px] py-4  overflow-hidden" >
             <div className="absolute top-[10px] left-0 w-[150px] h-full z-0 opacity-50" >
                 <img src="/images/vector1.png" alt="Hero" className="w-full  h-full" />
 

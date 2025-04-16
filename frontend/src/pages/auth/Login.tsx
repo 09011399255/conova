@@ -34,7 +34,7 @@ export default function Login() {
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
-                        className="absolute top-1/2 opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 opacity-50 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
                     />
 
                     <form
@@ -73,7 +73,7 @@ export default function Login() {
                             <span className="inline-block w-2/3 border-b border-[#DCDFE3]"></span>
                         </div>
 
-                        <div className="mb-[20px]">
+                        <div className="">
                             <label className="block text-sm text-black">
                                 Email Address
                             </label>
@@ -92,7 +92,7 @@ export default function Login() {
 
                         </div>
 
-                        <div className="">
+                        <div className="mt-[-20px]">
                             <label className="block text-sm  text-black">
                                 Password
                             </label>

@@ -25,7 +25,7 @@ export default function Register() {
         formState: { errors },
     } = useForm<RegisterSchema>({
         resolver: zodResolver(registerSchema),
-         mode: "onChange",
+        mode: "onChange",
     });
 
     const passwordValue = useWatch({ control, name: "password", defaultValue: "" });
@@ -95,7 +95,7 @@ export default function Register() {
 
                         <div className="mb-[20px]">
                             <label className="block text-sm text-black">
-                                Full Name
+                                Full Name  <span className='text-[#EF4444]'>*</span>
                             </label>
                             <input
                                 type="text"
@@ -112,7 +112,7 @@ export default function Register() {
 
                         </div>
                         <div className="mb-[20px]">
-                            <label className="block text-sm text-black">Phone Number</label>
+                            <label className="block text-sm text-black">Phone Number  <span className='text-[#EF4444]'>*</span></label>
                             <input
                                 type="tel"
                                 {...register("phoneNumber")}
@@ -127,7 +127,7 @@ export default function Register() {
 
 
                         <div className="mb-[20px]">
-                            <label className="block text-sm text-black">Work Email Address</label>
+                            <label className="block text-sm text-black">Work Email Address  <span className='text-[#EF4444]'>*</span></label>
                             <input
                                 type="email"
                                 {...register("email")}
@@ -148,7 +148,7 @@ export default function Register() {
 
                         <div className="mb-[20px]">
                             <label className="block text-sm  text-black">
-                                Create a  Password
+                                Create a  Password  <span className='text-[#EF4444]'>*</span>
                             </label>
                             <div className="relative">
                                 <input
@@ -179,7 +179,7 @@ export default function Register() {
 
                         <div>
                             <label className="block text-sm  text-black">
-                                Confirm  password
+                                Confirm  password  <span className='text-[#EF4444]'>*</span>
                             </label>
                             <div className="relative">
                                 <input

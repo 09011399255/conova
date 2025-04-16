@@ -60,8 +60,9 @@ const UserTable = () => {
     };
 
     return (
-        <div className="rounded-xl border border-gray-200 overflow-hidden mt-4">
-            <table className="min-w-full text-sm text-left bg-white">
+        <div className="rounded-xl border border-gray-200 overflow-hidden custom-scrollbar mt-4 overflow-x-auto">
+            <table className="min-w-[800px] w-full text-sm text-left bg-white">
+
                 <thead className="bg-[#FAFAFA] text-[14px] font-[100] text-black">
                     <tr>
 

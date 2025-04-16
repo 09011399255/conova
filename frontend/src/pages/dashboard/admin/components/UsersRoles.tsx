@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import UserTable from "./UserTable";
+import AddMemberForm from "./AddMemberForm";
+import AdminModal from "./AdminModal";
 
 const tabs = ["All Users", "User Roles"];
 
 const UsersRoles = () => {
     const [activeTab, setActiveTab] = useState("All Users");
+    const [showModal, setShowModal] = useState(false);
+
 
     return (
         <div className="max-940:px-[15px] px-[50px] max-860:px-[10px] font-manrope">
@@ -15,7 +19,7 @@ const UsersRoles = () => {
                     <p className="text-[#A5A8B5] text-sm">Invite or manage your organization’s members</p>
                 </div>
 
-                <button className="bg-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] text-white px-4 py-2 rounded flex items-center gap-2 text-sm">
+                <button onClick={() => setShowModal(true)} className="bg-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] text-white px-4 py-2 rounded flex items-center gap-2 text-sm">
                     <img src="/images/add.png" alt="Add" className="w-4 h-4" />
                     Add Members
                 </button>
@@ -56,6 +60,10 @@ const UsersRoles = () => {
                     )}
                 </motion.div>
             </div>
+
+            <AdminModal show={showModal} onClose={() => setShowModal(false)}>
+                <AddMemberForm onClose={() => setShowModal(false)} />
+            </AdminModal>
         </div>
     );
 };

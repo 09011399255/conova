@@ -59,8 +59,8 @@ const Bookings = () => {
                     })}
                 </div>
 
-                <div className="flex gap-4 items-center w-full ">
-                    <div className="flex-2 min-w-[350px]">
+                <div className=" flex flex-col md:flex-row gap-4 items-center w-full ">
+                    <div className="flex-2 w-full md:min-w-[350px]">
                         <div className="flex items-center justify-center gap-2 border border-[#DCDFE3] px-4 py-[14px] rounded-[100px]">
                             <Search className="w-4 h-4 text-[#A5A8B5]" />
                             <input
@@ -89,8 +89,8 @@ const Bookings = () => {
                         options={statusOptions}
                         placeholder="Status"
                     />
-                    <div className="w-[250px]">
-                        <div className="relative w-[250px] border px-4 py-2 border-[#E4E4E7] text-[#71717A] text-sm rounded-md">
+                    <div className="w-full md:w-[250px]">
+                        <div className="relative w-full md:w-[250px] border px-4 py-2 border-[#E4E4E7] text-[#71717A] text-sm rounded-md">
                             <DatePicker
                                 selected={selectedDate}
                                 onChange={(date: Date | null) => {
