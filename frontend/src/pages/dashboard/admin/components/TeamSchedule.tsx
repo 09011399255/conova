@@ -112,7 +112,7 @@ const TeamSchedule = () => {
     const [startDate, setStartDate] = useState(new Date());
 
     return (
-        <div className="bg-[#FAFAFA] relative px-[16px] py-[24px] rounded-[16px] border border-[#DCDFE3]  mt-[24px]">
+        <div className="bg-[#FAFAFA] z-[1] relative px-[16px] py-[24px] rounded-[16px] border border-[#DCDFE3]  mt-[24px]">
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-4">
                     <h2 className=" text-black font-[700] text-[20px]">Team Schedule</h2>
@@ -123,10 +123,6 @@ const TeamSchedule = () => {
                         dateFormat="MMM d - MMM d"
                     />
                 </div>
-
-
-
-
 
                 <button className="text-[16px] font-[700] text-[#134562] hover:underline">See all</button>
 

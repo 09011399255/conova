@@ -4,9 +4,51 @@
 @tailwind components;
 @tailwind utilities;
 
-
 html,
 body {
   overflow: auto !important;
 }
+/* Global scrollbar style */
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  width: 11px;
+}
 
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track {
+  background: #f1f1f1; /* light gray */
+}
+
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+  background-color: #134562; /* dark blue */
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover {
+  background-color: #0f3a4d; /* darker on hover */
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light gray background */
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #134562; /* Dark blue thumb */
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #0f3a4d; /* Slightly darker on hover */
+}
