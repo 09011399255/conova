@@ -53,7 +53,7 @@ urlpatterns = [
         name="user-detail",
     ),
     path("auth/profile/", ConovaUserProfileView.as_view(), name="profile"),
-    path("auth/google/", GoogleLogin.as_view(), name="google_login"),
+    # path("auth/google/", GoogleLogin.as_view(), name="google_login"),
     path(
         "auth/check-in/<uuid:personal_token>/",
         ConovaCheckInView.as_view(),
