@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+from urllib.parse import urlparse
 import dj_database_url
 from pathlib import Path
 from decouple import config
@@ -112,6 +113,17 @@ if DEBUG:
     }
 else:
     DATABASES = {"default": dj_database_url.config(default=config("DATABASE_URL"))}
+    # tmpPostgres = urlparse(config("DATABASE_URL"))
+    # DATABASES = {
+    #     "default": {
+    #         "ENGINE": "django.db.backends.postgresql",
+    #         "NAME": tmpPostgres.path.replace("/", ""),
+    #         "USER": tmpPostgres.username,
+    #         "PASSWORD": tmpPostgres.password,
+    #         "HOST": tmpPostgres.hostname,
+    #         "PORT": 5432,
+    #     }
+    # }
 
 
 # Password validation
@@ -201,34 +213,34 @@ SIMPLE_JWT = {
 # ACCOUNT_AUTHENTICATION_METHOD = "email"
 # ACCOUNT_USERNAME_REQUIRED = False
 # ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+# ACCOUNT_LOGIN_METHODS = {"email"}
+# ACCOUNT_EMAIL_VERIFICATION = "none"
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
-GOOGLE_OAUTH_CLIENT_ID = config("GOOGLE_OAUTH_CLIENT_ID")
-GOOGLE_OAUTH_CLIENT_SECRET = config("GOOGLE_OAUTH_CLIENT_SECRET")
-GOOGLE_OAUTH_CALLBACK_URL = config("GOOGLE_OAUTH_CALLBACK_URL")
+# GOOGLE_OAUTH_CLIENT_ID = config("GOOGLE_OAUTH_CLIENT_ID")
+# GOOGLE_OAUTH_CLIENT_SECRET = config("GOOGLE_OAUTH_CLIENT_SECRET")
+# # GOOGLE_OAUTH_CALLBACK_URL = config("GOOGLE_OAUTH_CALLBACK_URL")
 
 # Authenticate if local account with the email already exist
-SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
-# connect local account account and social account if local account with that email address exists
-SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APPS": [
-            {
-                "client_id": GOOGLE_OAUTH_CLIENT_ID,
-                "secret": GOOGLE_OAUTH_CLIENT_SECRET,
-                "key": "",
-            },
-        ],
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    }
-}
+# SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+# # connect local account account and social account if local account with that email address exists
+# SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+# SOCIALACCOUNT_PROVIDERS = {
+#     "google": {
+#         "APPS": [
+#             {
+#                 "client_id": GOOGLE_OAUTH_CLIENT_ID,
+#                 "secret": GOOGLE_OAUTH_CLIENT_SECRET,
+#                 "key": "",
+#             },
+#         ],
+#         "SCOPE": ["profile", "email"],
+#         "AUTH_PARAMS": {
+#             "access_type": "online",
+#         },
+#     }
+# }
 
 # Cloudinary storage
 CLOUDINARY_STORAGE = {
