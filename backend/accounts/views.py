@@ -1,3 +1,4 @@
+import uuid
 from django.urls import reverse
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
@@ -13,7 +14,14 @@ from .serializers import ConovaResetPasswordSerializer as ConovaResendOTPSeriali
 from django.core.mail import send_mail
 from rest_framework.response import Response
 from rest_framework import status
-from core.utils import generate_otp, generate_qr_code, verify_otp, set_cookies
+from core.utils import (
+    generate_otp,
+    generate_qr_code,
+    generate_token,
+    verify_otp,
+    set_cookies,
+    verify_token,
+)
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
@@ -116,6 +124,7 @@ class ConovaLoginView(TokenObtainPairView):
 
         try:
             user = User.objects.get(email=email)
+            print(user.role)
             if not user.is_active:
                 return Response(
                     {"message": "Account is inactive, Please Verify your email."},
@@ -139,6 +148,8 @@ class ConovaLoginView(TokenObtainPairView):
             }
 
             response.data["message"] = "Login Successful."
+            response.data["role"] = user.role
+
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
@@ -219,14 +230,37 @@ class ConovaResetPasswordView(APIView):
         )
 
 
+class ConovaVerifyOTPView(APIView):
+    def post(self, request):
+        serializer = ConovaActivateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        email = data.get("email")
+        otp = data.get("otp")
+
+        if verify_otp(email, otp):
+            User.objects.get(email=email)
+            token = generate_token(email)
+            
+            return Response({"message": "OTP verified successully.", 
+                             "token": token
+                             }, status=status.HTTP_200_OK)
+
+        return Response(
+            {"message": "Invalid or expired otp"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+
 class ConovaPasswordResetConfirmView(APIView):
     def post(self, request):
         serializer = ConovaPasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         password = request.data.get("new_password")
         email = serializer.data.get("email").strip().lower()
-        otp = serializer.data.get("otp")
-        if verify_otp(email, otp):
+        token = serializer.data.get("token")
+        if verify_token(email, token):
             try:
                 user = User.objects.get(email=email)
                 user.set_password(password)
@@ -242,7 +276,7 @@ class ConovaPasswordResetConfirmView(APIView):
                 return Response({"message": "Password reset successful."})
             except User.DoesNotExist:
                 pass
-        return Response({"message": "Invalid or expired OTP."})
+        return Response({"message": "Invalid or expired token."})
 
 
 class ConovaPasswordChangeView(APIView):

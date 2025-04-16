@@ -34,7 +34,7 @@ class ConovaUser(AbstractUser):
     phone_no = PhoneNumberField(
         blank=True, null=True, help_text="Contact phone number."
     )
-    role = models.CharField(max_length=10, choices=ROLES, blank=True)
+    role = models.CharField(max_length=10, choices=ROLES, blank=True, default="employee")
     qr_code_image = models.ImageField(
         storage=MediaCloudinaryStorage, upload_to=rename_file
     )

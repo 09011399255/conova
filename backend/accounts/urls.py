@@ -13,6 +13,7 @@ from .views import (
     ConovaTokenRefreshView,
     ConovaResetPasswordView,
     ConovaUserView,
+    ConovaVerifyOTPView,
     GoogleLoginView,
     # GoogleLogin,
 )
@@ -37,6 +38,7 @@ urlpatterns = [
         ConovaResetPasswordView.as_view(),
         name="reset-password",
     ),
+    path("auth/verify-otp/", ConovaVerifyOTPView.as_view(), name="verify-otp"),
     path(
         "auth/reset-password-confirm/",
         ConovaPasswordResetConfirmView.as_view(),

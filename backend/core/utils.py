@@ -15,9 +15,19 @@ def generate_otp(email):
     cache.set(f"otp_{email}", otp, timeout=600)
     return otp
 
+def generate_token(email):
+    token = str(uuid.uuid4().hex)
+    cache.set(f"token_{email}", token, timeout=600)
+    return token
+
+def verify_token(email, token):
+    stored_token = cache.get(f"token_{email}")
+    if stored_token == token:
+        cache.delete(f"token_{email}")
+        return True
+    return False
 
 def verify_otp(email, typed_otp):
-    email = email
     stored_otp = cache.get(f"otp_{email}")
     if stored_otp == typed_otp:
         cache.delete(f"otp_{email}")

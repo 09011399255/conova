@@ -88,7 +88,7 @@ class ConovaPasswordResetConfirmSerializer(serializers.Serializer):
         write_only=True,
         style={"input_field": "password"},
     )
-    otp = serializers.CharField()
+    token = serializers.CharField()
 
     def validate(self, attrs):
         password = attrs["new_password"]
