@@ -9,6 +9,7 @@ import ResetOtpVerification from "./pages/auth/account-recovery/ResetOtpVerifica
 import ResetPassword from "./pages/auth/account-recovery/ResetPassword";
 import Verify from "./pages/auth/Verify";
 import AccountType from "./pages/account-type/AccountType";
+import Admin from "./pages/dashboard/admin/Admin";
 
 const App: React.FC = () => {
   return (
@@ -23,7 +24,7 @@ const App: React.FC = () => {
         <Route path="/reset-otp-verification" element={<ResetOtpVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/account-type" element={<AccountType />} />
-        <Route path="/dashboard" element={<Login />} />
+        <Route path="/dashboard" element={<Admin />} />
 
       </Routes>
     </BrowserRouter>

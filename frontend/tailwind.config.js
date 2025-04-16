@@ -5,7 +5,13 @@ export default {
     fontFamily: {
       manrope: ["Manrope", "sans-serif"], // Add Metrophobic font
     },
-    extend: {},
+    extend: {
+      screens: {
+        "max-940": { max: "940px" },
+        "max-860": { max: "860px" },
+        "max-400": { max: "400px" },
+      },
+    },
   },
 
   plugins: [],
