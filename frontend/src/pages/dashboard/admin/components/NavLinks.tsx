@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 const navLinks = [
     { name: 'Overview', path: '/dashboard/overview' },
     { name: 'Bookings', path: '/dashboard/bookings' },
-    { name: 'Spaces', path: '/spaces' },
+    { name: 'Spaces', path: '/dashboard/spaces' },
     { name: 'Users & Roles', path: '/dashboard/users-roles' },
     { name: 'Availability', path: '/availability' },
     { name: 'Reports & Analytics', path: '/reports-analytics' },

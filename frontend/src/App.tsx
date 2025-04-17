@@ -10,9 +10,10 @@ import ResetPassword from "./pages/auth/account-recovery/ResetPassword";
 import Verify from "./pages/auth/Verify";
 import AccountType from "./pages/account-type/AccountType";
 import Admin from "./pages/dashboard/admin/Admin";
-import Overview from "./pages/dashboard/admin/components/Overview";
+import Overview from "./pages/dashboard/admin/pages/Overview";
 import Bookings from "./pages/dashboard/admin/components/Bookings";
-import UsersRoles from "./pages/dashboard/admin/components/UsersRoles";
+import UsersRoles from "./pages/dashboard/admin/pages/UsersRoles";
+import Spaces from "./pages/dashboard/admin/pages/Spaces";
 
 const App: React.FC = () => {
   return (
@@ -32,12 +33,9 @@ const App: React.FC = () => {
           <Route path="overview" element={<Overview />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="users-roles" element={<UsersRoles />} />
-          {/* <Route path="spaces" element={<Spaces />} />
-          
-          <Route path="availability" element={<Availability />} />
-          <Route path="reports-analytics" element={<ReportsAnalytics />} />
-          <Route path="integrations" element={<Integrations />} />
-          <Route path="settings" element={<Settings />} /> */}
+          <Route path="spaces" element={<Spaces />} />
+
+
         </Route>
       </Routes>
     </BrowserRouter>

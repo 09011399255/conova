@@ -13,7 +13,7 @@ export default function AccountType() {
 
     const handleContinue = () => {
         if (selectedType) {
-            // navigate(`/register/${selectedType}`);
+            navigate("/dashboard");
         }
     };
 

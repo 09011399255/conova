@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import UserTable from "./UserTable";
-import AddMemberForm from "./AddMemberForm";
-import AdminModal from "./AdminModal";
+import UserTable from "../components/UserTable";
+import AdminModal from "../components/AdminModal";
+import AddMemberForm from "../components/AddMemberForm";
+
 
 const tabs = ["All Users", "User Roles"];
 
@@ -15,7 +16,7 @@ const UsersRoles = () => {
         <div className="max-940:px-[15px] px-[50px] max-860:px-[10px] font-manrope">
             <div className="block md:flex items-center justify-between mb-6 ">
                 <div>
-                    <h2 className="text-xl font-bold text-black">Users and Roles</h2>
+                    <h2 className="text-xl font-bold text-black mb-[4px]">Users and Roles</h2>
                     <p className="text-[#A5A8B5] text-sm">Invite or manage your organization’s members</p>
                 </div>
 

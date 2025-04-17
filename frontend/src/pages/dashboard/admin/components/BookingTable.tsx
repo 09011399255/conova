@@ -5,7 +5,7 @@ const bookings = [
         name: "Bethany Hall",
         office: "Costain Office",
         space: "Huddle Room 3",
-        date: "17-Apr-2025",
+        date: "20-Apr-2025",
         time: "9:00am - 5:00pm",
         status: "Confirmed",
     },
@@ -113,6 +113,7 @@ const bookings = [
 
 
 import { useState } from "react";
+import BookingDetailsModal from "./BookingDetailsModal";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -123,6 +124,13 @@ export default function BookingTable() {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const paginatedData = bookings.slice(start, start + ITEMS_PER_PAGE);
     const [selectedBookings, setSelectedBookings] = useState<number[]>([]);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState<any>(null);
+
+    const handleViewDetails = (booking: any) => {
+        setSelectedBooking(booking);
+        setShowModal(true);
+    };
 
 
     const getStatusStyle = (status: string) => {
@@ -225,7 +233,7 @@ export default function BookingTable() {
                                     </span>
                                 </td>
                                 <td className="px-4 py-3 flex gap-4 items-center">
-                                    <button className="text-sm text-black hover:underline">
+                                    <button onClick={() => handleViewDetails(booking)} className="text-sm text-black hover:underline">
                                         View details
                                     </button>
                                     <button>
@@ -277,6 +285,12 @@ export default function BookingTable() {
                     </button>
                 </div>
             </div>
+            <BookingDetailsModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                booking={selectedBooking}
+            />
+
         </>
     );
 }

@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import AdminNavbar from './components/AdminNavbar'
-import BookingSection from './components/BookingSection';
+import BookingSection from './pages/BookingSection';
 import Cards from './components/Cards';
 
 const Admin = () => {

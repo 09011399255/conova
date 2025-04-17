@@ -1,5 +1,5 @@
 import BookingSection from "./BookingSection"
-import Cards from "./Cards"
+import Cards from "../components/Cards"
 
 const Overview = () => {
     return (

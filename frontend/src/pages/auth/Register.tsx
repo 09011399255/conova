@@ -59,7 +59,7 @@ export default function Register() {
 
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="relative w-full max-w-md space-y-6 z-10 "
+                        className="relative w-full max-w-md z-10 "
                     >
                         <div className="text-center ">
                             <h2 className="text-2xl font-bold lg:mt-[50px] text-black mb-[12px]">
@@ -93,7 +93,7 @@ export default function Register() {
                             <span className="inline-block w-2/3 border-b border-[#DCDFE3]"></span>
                         </div>
 
-                        <div className="mb-[20px]">
+                        <div className="mb-[16px]">
                             <label className="block text-sm text-black">
                                 Full Name  <span className='text-[#EF4444]'>*</span>
                             </label>
@@ -111,7 +111,7 @@ export default function Register() {
                             )}
 
                         </div>
-                        <div className="mb-[20px]">
+                        <div className="mb-[16px]">
                             <label className="block text-sm text-black">Phone Number  <span className='text-[#EF4444]'>*</span></label>
                             <input
                                 type="tel"
@@ -126,7 +126,7 @@ export default function Register() {
 
 
 
-                        <div className="mb-[20px]">
+                        <div className="mb-[16px]">
                             <label className="block text-sm text-black">Work Email Address  <span className='text-[#EF4444]'>*</span></label>
                             <input
                                 type="email"
@@ -146,7 +146,7 @@ export default function Register() {
                         />
 
 
-                        <div className="mb-[20px]">
+                        <div className="my-[20px]">
                             <label className="block text-sm  text-black">
                                 Create a  Password  <span className='text-[#EF4444]'>*</span>
                             </label>
@@ -177,7 +177,7 @@ export default function Register() {
                         </div>
 
 
-                        <div>
+                        <div className="mb-[16px]">
                             <label className="block text-sm  text-black">
                                 Confirm  password  <span className='text-[#EF4444]'>*</span>
                             </label>
@@ -203,7 +203,7 @@ export default function Register() {
                             )}
 
                         </div>
-                        <div>
+                        <div className="mb-[18px]">
                             <div className="flex items-start mt-4">
                                 <input
                                     type="checkbox"
@@ -228,7 +228,7 @@ export default function Register() {
 
                         <button
                             type="submit"
-                            className="w-full bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
+                            className="w-full mb-[20px] bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
                         >
                             Register
                         </button>

@@ -136,7 +136,7 @@ const BookingTabs = () => {
                 exit={{ opacity: 0, x: activeTab === "confirmed" ? 20 : -20 }}
                 transition={{ duration: 0.3 }}
                 className="max-h-[970px] overflow-y-auto pr-2 custom-scrollbar flex-1"
-               
+
             >
                 {data.map((booking, i) => (
                     <div
