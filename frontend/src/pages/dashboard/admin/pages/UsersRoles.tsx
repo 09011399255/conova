@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import UserTable from "../components/UserTable";
 import AdminModal from "../components/AdminModal";
 import AddMemberForm from "../components/AddMemberForm";
+import PermissionMatrix from "../components/Permission";
 
 
 const tabs = ["All Users", "User Roles"];
@@ -57,7 +58,7 @@ const UsersRoles = () => {
                     {activeTab === "All Users" ? (
                         <UserTable />
                     ) : (
-                        <div className="text-gray-500 text-sm">User roles management coming soon...</div>
+                        <PermissionMatrix/>
                     )}
                 </motion.div>
             </div>

@@ -14,6 +14,7 @@ import Overview from "./pages/dashboard/admin/pages/Overview";
 import Bookings from "./pages/dashboard/admin/components/Bookings";
 import UsersRoles from "./pages/dashboard/admin/pages/UsersRoles";
 import Spaces from "./pages/dashboard/admin/pages/Spaces";
+import AddSpacePage from "./pages/dashboard/admin/pages/AddSpacePage";
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const App: React.FC = () => {
           <Route path="bookings" element={<Bookings />} />
           <Route path="users-roles" element={<UsersRoles />} />
           <Route path="spaces" element={<Spaces />} />
+          <Route path="spaces/new" element={<AddSpacePage />} />
 
 
         </Route>

@@ -5,6 +5,7 @@ import AdminModal from "../components/AdminModal";
 import CustomDropdown from "../components/CustomDropdown";
 import { mockSpaces } from "../../../../data/mockSpaces";
 import { MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const locationOptions = [
     { label: 'Constain Office', value: 'constain' },
@@ -43,6 +44,8 @@ const Spaces = () => {
     const [selectedFloor, setSelectedFloor] = useState("");
     const [selectedCapacity, setSelectedCapacity] = useState("");
 
+    const navigate = useNavigate();
+
     return (
         <div className="max-940:px-[15px] px-[50px] max-860:px-[10px] font-manrope">
             <div className="block md:flex items-center justify-between mb-6 ">
@@ -51,7 +54,7 @@ const Spaces = () => {
                     <p className="text-[#A5A8B5] text-sm">Create and manage your workspaces with ease.</p>
                 </div>
                 <div className="flex gap-3">
-                    <button onClick={() => setShowModal(true)} className="bg-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] text-white px-4 py-2.5 rounded flex items-center gap-2 text-sm">
+                    <button onClick={() => navigate("/dashboard/spaces/new")} className="bg-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] text-white px-4 py-2.5 rounded flex items-center gap-2 text-sm">
                         <img src="/images/add.png" alt="Add" className="w-4 h-4" />
                         Add New Space
                     </button>
