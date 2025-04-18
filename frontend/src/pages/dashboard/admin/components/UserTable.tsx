@@ -98,10 +98,10 @@ const UserTable = () => {
                                 </span>
                             </td>
                             <td className="px-4 py-3 flex gap-4">
-                                <button className="text-gray-600 hover:text-blue-600">
+                                <button className="text-gray-600 hover:text-blue-600 mt-[-33px]">
                                     <img src="/images/edit.png" className="w-4 h-4" />
                                 </button>
-                                <button className="text-red-500 hover:text-red-700">
+                                <button className="text-red-500 hover:text-red-700 mt-[-33px]">
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                             </td>
