@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import AdminNavbar from './components/AdminNavbar'
 import ScrollToTop from './components/ScrollToTop';
 
+
 const Admin = () => {
     return (
         <div className='font-manrope pb-[50px] '>

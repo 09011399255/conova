@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import AdminModal from "../components/AdminModal";
-import CustomDropdown from "../components/CustomDropdown";
-import { mockSpaces } from "../../../../data/mockSpaces";
-import { useNavigate } from "react-router-dom";
-import AddNewFloorPlan from "../components/AddNewFloorPlan";
-import { useAdmin } from "../../../../contexts/AdminContext";
+import CustomDropdown from "../admin/components/CustomDropdown";
+import { useAdmin } from "../../../contexts/AdminContext";
+import { hubbleSpaces } from "../../../data/huddleSpaces";
+import { Users } from "lucide-react";
+
 
 const locationOptions = [
     { label: 'Constain Office', value: 'constain' },
@@ -36,10 +35,9 @@ const roomCapacityOptions = [
 
 
 
-const Spaces = () => {
+const BookRoom = () => {
     const { isAdmin } = useAdmin()
 
-    const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState<"image View" | "floor Plan" | "list View">(() => {
         return (localStorage.getItem("spacesActiveTab") as "image View" | "floor Plan" | "list View") || "image View";
     });
@@ -48,51 +46,19 @@ const Spaces = () => {
     const [selectedFloor, setSelectedFloor] = useState("");
     const [selectedCapacity, setSelectedCapacity] = useState("");
 
-    const navigate = useNavigate();
-
     return (
         <div className="max-940:px-[15px] px-[50px] max-860:px-[10px] font-manrope">
             <div className="block md:flex items-center justify-between mb-6 ">
                 <div>
                     <h2 className="text-xl font-bold text-black mb-[4px]">
-                        {
-                            isAdmin ? "Spaces" : "Book a seat"
-                        }
+                        Book a room
+
                     </h2>
                     <p className="text-[#A5A8B5] text-sm">
-                        {
-                            isAdmin ? "Create and manage your workspaces with ease." : "Choose from available seats and lock in your booking"
-                        }
+
+                        Choose from available rooms, pick a time, and lock in your booking
                     </p>
                 </div>
-                {
-                    isAdmin && (
-                        <div className="flex gap-3">
-                            <button onClick={() => navigate("/dashboard/spaces/new")} className="bg-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] text-white px-4 py-2.5 rounded flex items-center gap-2 text-sm">
-                                <img src="/images/add.png" alt="Add" className="w-4 h-4" />
-                                Add New Space
-                            </button>
-                            <button
-                                onClick={() => setShowModal(true)}
-                                className="group border border-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] hover:text-white text-[#134562] px-4 py-2.5 rounded flex items-center gap-2 text-sm"
-                            >
-                                <img
-                                    src="/images/add2.png"
-                                    alt="Add"
-                                    className="w-4 h-4 group-hover:hidden" // hide this one on hover
-                                />
-                                <img
-                                    src="/images/add.png"
-                                    alt="Add Hover"
-                                    className="w-4 h-4 hidden group-hover:block" // show this one on hover
-                                />
-                                Add Floor Plan
-                            </button>
-
-                        </div>
-                    )
-                }
-
 
             </div>
 
@@ -170,47 +136,39 @@ const Spaces = () => {
 
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
-                                {mockSpaces.map((space) => (
+                                {hubbleSpaces.map((space) => (
                                     <div key={space.id} className="bg-white rounded-lg mock mb-[15px]">
                                         <img
                                             src={space.image}
                                             alt={space.name}
-                                            className="rounded-t-[8px] mb-2 w-full  object-cover"
+                                            className="rounded-t-[8px] mb-2 w-full object-cover"
                                         />
-                                        <div className=" p-3">
-                                            <div className="flex items-center gap-2 text-sm mb-2  ">
-                                                <p className="font-[400] text-[14px] text-[#1A1A1A]">{space.name}</p>
-                                                <div className="flex items-center gap-[2px]">
+                                        <div className="p-3">
+                                            <p className="font-[400] text-[16px] text-[#1A1A1A] mb-[8px]">{space.name}</p>
+                                            <div className="flex items-center gap-2 text-[12px] text-[#6B7280] mb-[22px]">
+                                                <div className="flex items-center gap-[4px]">
                                                     <img src="/images/location.png" className="w-4 h-4" />
-                                                    <span className="text-[#000000] font-[500] text-[12px]">Floor {space.floor}</span>
+                                                    <span className="text-black font-[500] text-[12px]">Floor {space.floor}</span>
+                                                </div>
+                                                <div className="flex items-center gap-[4px]">
+                                                    <Users size={16} />
+                                                    <span className="text-black font-[500] text-[12px]">{space.participants} Participants</span>
                                                 </div>
                                             </div>
-
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <button
-                                                    disabled={space.status === "booked"}
-                                                    className={`w-full text-sm  px-4 py-2 rounded flex justify-center items-center gap-2 transition ${space.status === "booked"
-                                                        ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
-                                                        : "bg-[#134562] text-white hover:bg-[#103a4c]"
-                                                        }`}
-                                                >
-                                                    {space.status === "booked" ? "Booked" : "Book Seat"}
-                                                </button>
-                                                {
-                                                    isAdmin && (
-                                                        <button className="  border border-[#134562] text-sm  px-4 py-[9px] rounded flex justify-center items-center gap-2 transition">
-                                                            <img src="/images/edit.png" alt="View" className="w-4 h-4" />
-                                                        </button>
-                                                    )
-                                                }
-
-                                            </div>
-
+                                            <button
+                                                disabled={space.status === "booked"}
+                                                className={`w-full text-sm px-4 py-2 rounded transition ${space.status === "booked"
+                                                    ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
+                                                    : "bg-[#134562] text-white hover:bg-[#103a4c]"
+                                                    }`}
+                                            >
+                                                {space.status === "booked" ? "Booked" : "Check availability"}
+                                            </button>
                                         </div>
-
                                     </div>
                                 ))}
                             </div>
+
                         </div>
 
 
@@ -245,12 +203,8 @@ const Spaces = () => {
             </div>
 
 
-
-            <AdminModal show={showModal} onClose={() => setShowModal(false)} maxWidth="max-w-[583px]">
-                <AddNewFloorPlan onClose={() => setShowModal(false)} />
-            </AdminModal>
         </div>
     );
 };
 
-export default Spaces;
+export default BookRoom;
