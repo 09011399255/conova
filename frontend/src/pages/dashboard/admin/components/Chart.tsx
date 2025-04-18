@@ -56,7 +56,7 @@ const Chart: React.FC = () => {
         responsive: true,
         plugins: {
             legend: {
-                display: true,
+                display: false,
                 position: "top" as const,
                 labels: {
                     usePointStyle: true,
@@ -79,7 +79,7 @@ const Chart: React.FC = () => {
                 <select
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="border px-3 py-1 bg-[#fafafa] rounded-md text-sm outline-none cursor-pointer"
+                    className="border px-3 py-1 bg-[#fafafa] mb-[10px] md:mb-0 rounded-md text-sm outline-none cursor-pointer"
                 >
                     <option>Costain Office</option>
                     <option>London HQ</option>
