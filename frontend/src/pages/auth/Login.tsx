@@ -144,7 +144,7 @@ export default function Login() {
 
                         <p className="text-sm text-center text-[#A5A8B5] mt-[20px]">
                             Don’t have an account yet?{" "}
-                            <Link to="/register" className="text-[#134562]  hover:underline">
+                            <Link to="/" className="text-[#134562]  hover:underline">
                                 Create one
                             </Link>
                         </p>
