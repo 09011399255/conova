@@ -1,40 +1,51 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../../components/layouts/AuthLayout";
 import AuthContainer from "../../../components/layouts/AuthContainer";
-import { loginSchema, LoginSchema } from "../../../schemas/loginSchema";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { resetPasswordSchema, ResetPasswordSchema } from "../../../schemas/resetPasswordSchema";
+import { PasswordRules } from "../components/PasswordRules";
+import Modal from "../components/Modal";
 
 export default function ResetPassword() {
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
-    } = useForm<LoginSchema>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<ResetPasswordSchema>({
+        resolver: zodResolver(resetPasswordSchema),
     });
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const onSubmit = (data: LoginSchema) => {
+
+    const passwordValue = useWatch({ control, name: "password", defaultValue: "" });
+
+
+    const onSubmit = (data: ResetPasswordSchema) => {
         console.log(data);
+        setIsModalOpen(true);
+
     };
+
+    const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
 
 
-    const navigate = useNavigate();
 
     return (
         <AuthLayout>
             <AuthContainer >
-                <div className="lg:bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
+                <div className="bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
-                        className="absolute top-1/2 w-[70%] opacity-40 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 w-[70%] opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
                     />
 
                     <form
@@ -42,7 +53,7 @@ export default function ResetPassword() {
                         className="relative w-full max-w-md space-y-6 z-10"
                     >
                         <div className="text-center ">
-                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black">
+                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black mb-[12px]">
                                 Create New Password
                             </h2>
                             <p className="text-sm text-[#A5A8B5] mt-1">
@@ -76,7 +87,11 @@ export default function ResetPassword() {
                                 <p className="text-[#EF4444] text-xs mt-1">{errors.password.message}</p>
                             )}
 
+                            <PasswordRules password={passwordValue} />
+
                         </div>
+
+
 
                         <div>
                             <label className="block text-sm  text-black">
@@ -85,8 +100,8 @@ export default function ResetPassword() {
                             <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
-                                    {...register("password")}
-                                    className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.password
+                                    {...register("confirmPassword")}
+                                    className={`mt-1 w-full px-4 py-2 border rounded-md bg-transparent outline-none focus:ring-1 ${errors.confirmPassword
                                         ? "border-[#EF4444] focus:ring-[#EF4444]"
                                         : "border-[#D7D3D0] text-[#292524] focus:ring-[#292524]"
                                         }`} placeholder="Enter your new password"
@@ -99,8 +114,8 @@ export default function ResetPassword() {
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
-                            {errors.password && (
-                                <p className="text-[#EF4444] text-xs mt-1">{errors.password.message}</p>
+                            {errors.confirmPassword && (
+                                <p className="text-[#EF4444] text-xs mt-1">{errors.confirmPassword.message}</p>
                             )}
 
                         </div>
@@ -108,7 +123,6 @@ export default function ResetPassword() {
 
 
                         <button
-                            onClick={() => navigate("/reset-otp-verification")}
                             type="submit"
                             className="w-full bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
                         >
@@ -124,6 +138,29 @@ export default function ResetPassword() {
                         </p>
                     </form>
                 </div>
+
+                {isModalOpen && (
+
+
+                    <Modal onClose={() => setIsModalOpen(false)} showCloseButton={true}>
+
+                        <div className="flex justify-center">
+                            <img
+                                src="/images/success.png"
+                                alt="Verified"
+                                className="w-[100px] mb-[40px] mt-[20px] h-[100px]"
+                            />
+                        </div>
+                        <h2 className="text-xl font-semibold mb-[40px]">Password Reset Successfully</h2>
+                        <button
+                            onClick={() => navigate("/login")}
+                            className="bg-[#134562] text-white w-full px-6 py-2 rounded-md mb-[20px] hover:bg-[#0f364b] transition"
+                        >
+                            Log In
+                        </button>
+                    </Modal>
+                )}
+
             </AuthContainer>
         </AuthLayout>
 
