@@ -36,7 +36,7 @@ const roomCapacityOptions = [
 
 
 const BookRoom = () => {
-    const { isAdmin } = useAdmin()
+    // const { isAdmin } = useAdmin()
 
     const [activeTab, setActiveTab] = useState<"image View" | "floor Plan" | "list View">(() => {
         return (localStorage.getItem("spacesActiveTab") as "image View" | "floor Plan" | "list View") || "image View";
