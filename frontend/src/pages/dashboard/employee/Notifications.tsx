@@ -36,7 +36,12 @@ const notificationsData = [
     },
     {
         id: 4,
+        type: "seat",
         message: "Your booking for Seat 15C has been confirmed",
+        floor: "Floor 1",
+        seat: "Seat 15C",
+        schedule: "Monday, April 25",
+        timeRange: "12:00 PM - 01:00 PM",
         timeAgo: "5 minutes ago",
         action: "View details"
     },
@@ -77,15 +82,17 @@ type TeamMember = {
 
 type InviteData = {
     type?: string;
-    room: string;
+    room?: string;
     floor: string;
     schedule: string;
     timeRange: string;
-    location: string;
-    meetingDescription: string;
-    teamMembers: TeamMember[];
+    location?: string;
+    meetingDescription?: string;
+    teamMembers?: TeamMember[];
     participants?: number;
+    seat?: string; // 👈 Add this
 };
+
 
 
 const NotificationsList = () => {
@@ -154,8 +161,17 @@ const NotificationsList = () => {
                                                 teamMembers: notification.teamMembers!,
                                                 participants: notification.participants,
                                             });
+                                        } else if (notification.type === "seat") {
+                                            setSelectedInvite({
+                                                type: notification.type,
+                                                seat: notification.seat!,
+                                                floor: notification.floor!,
+                                                schedule: notification.schedule!,
+                                                timeRange: notification.timeRange!,
+                                            });
                                         }
                                     }}
+
 
                                 >
                                     {notification.action}
@@ -166,7 +182,7 @@ const NotificationsList = () => {
                 </div>
             </div>
             {selectedInvite && (
-                <AdminModal show={true} onClose={() => setSelectedInvite(null)} maxWidth="max-w-[600px]">
+                <AdminModal show={true} onClose={() => setSelectedInvite(null)} maxWidth="max-w-[500px]">
                     <InviteModal onClose={() => setSelectedInvite(null)} data={selectedInvite} />
                 </AdminModal>
             )}
