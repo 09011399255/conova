@@ -21,8 +21,8 @@ const App: React.FC = () => {
     <BrowserRouter>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
+        <Route path="/" element={<Register />} />
 
-        <Route path="/register" element={<Register />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset" element={<Reset />} />

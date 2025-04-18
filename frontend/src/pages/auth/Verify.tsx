@@ -116,7 +116,7 @@ export default function Verify() {
 
                         <p className="text-sm text-center text-[#A5A8B5]">
                             Didn't get any code?{" "}
-                            <Link to="/register" className="text-[#134562] font-bold hover:underline">
+                            <Link to="/" className="text-[#134562] font-bold hover:underline">
                                 Resend OTP
                             </Link>
                         </p>
