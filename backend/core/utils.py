@@ -1,5 +1,6 @@
 import os
 import secrets
+import uuid
 import qrcode
 from io import BytesIO
 from django.core.files import File
@@ -14,9 +15,19 @@ def generate_otp(email):
     cache.set(f"otp_{email}", otp, timeout=600)
     return otp
 
+def generate_token(email):
+    token = str(uuid.uuid4().hex)
+    cache.set(f"token_{email}", token, timeout=600)
+    return token
+
+def verify_token(email, token):
+    stored_token = cache.get(f"token_{email}")
+    if stored_token == token:
+        cache.delete(f"token_{email}")
+        return True
+    return False
 
 def verify_otp(email, typed_otp):
-    email = email
     stored_otp = cache.get(f"otp_{email}")
     if stored_otp == typed_otp:
         cache.delete(f"otp_{email}")
@@ -33,7 +44,8 @@ def set_cookies(response, key, value):
         samesite="Lax",
         secure=secure_flag,
     )
-    
+
+
 def generate_qr_code(url):
     qr = qrcode.QRCode(
         version=1,
@@ -43,24 +55,18 @@ def generate_qr_code(url):
     )
     qr.add_data(url)
     qr.make(fit=True)
-    
+
     img = qr.make_image(fill="black", back_color="white")
-    
-    #save to memory buffer
+
+    # save to memory buffer
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     buffer.seek(0)
     return File(buffer, name="qr_code.png")
 
 
-def rename_avatar(instance, filename):
+def rename_file(instance, filename):
     ext = os.path.splitext(filename)[1]
     id = instance.id
     filename = f"user_{id}{ext}"
-    return os.path.join("Avatars", filename)
-
-def rename_qr_code(instance, filename):
-    ext = os.path.splitext(filename)[1]
-    id = instance.id
-    filename = f"user_{id}{ext}"
-    return os.path.join("QRcodes", filename)
+    return filename

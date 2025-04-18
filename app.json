@@ -1,0 +1,14 @@
+{
+  "name": "conova",
+  "scripts": {
+    "postdeploy": "python backend/manage.py migrate"
+  },
+  "env": {
+    "PYTHONPATH": "backend"
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+]
+}
