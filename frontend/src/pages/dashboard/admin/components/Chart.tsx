@@ -31,7 +31,7 @@ const Chart: React.FC = () => {
         datasets: [
             {
                 label: "Meeting rooms",
-                data: [75, 70, 72, 73, 78, 79, 71],
+                data: [75, 65, 72, 73, 78, 79, 71],
                 borderColor: "#16B364",
                 backgroundColor: "#16B364",
                 tension: 0.4,
@@ -41,7 +41,7 @@ const Chart: React.FC = () => {
             },
             {
                 label: "Desks",
-                data: [50, 30, 40, 50, 35, 30, 45],
+                data: [50, 60, 40, 50, 35, 30, 45],
                 borderColor: "#134562",
                 backgroundColor: "#134562",
                 tension: 0.4,

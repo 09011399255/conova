@@ -102,7 +102,7 @@ html::-webkit-scrollbar-thumb:hover {
   border-radius: 6px;
   padding: 0.25rem 0.5rem;
   width: 100px;
-  color:#000000
+  color: #000000;
 }
 
 .react-time-picker__wrapper {
@@ -117,4 +117,7 @@ html::-webkit-scrollbar-thumb:hover {
 
 .react-time-picker__clear-button {
   display: none !important;
+}
+.change {
+  background: rgba(16, 56, 79, 0.05);
 }

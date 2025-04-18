@@ -1,10 +1,12 @@
-import {Search, ChevronDown, X } from "lucide-react";
-import NavLinks, { NavLinksMobile } from "./NavLinks";
+import { Search, ChevronDown, X } from "lucide-react";
+import { NavLinks, NavLinksMobile } from "./NavLinks";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAdmin } from "../../../../contexts/AdminContext";
 
 
 const AdminNavbar = () => {
+    const { isAdmin } = useAdmin();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -58,11 +60,11 @@ const AdminNavbar = () => {
                     </div>
                     <div className="flex items-center gap-2 max-860:hidden ">
                         <div className="w-10 h-10">
-                            <img src="/images/avatar.png" alt="Elizabeth" className="" />
+                            <img src={isAdmin ? "/images/avatar.png" : "/images/empl.png"} alt="Elizabeth" className="" />
                         </div>
                         <div className="">
-                            <div className="text-[#A5A8B5] text-[14px] font-[600]">Elizabeth</div>
-                            <div className="text-[#A5A8B5] text-[12px]">Admin</div>
+                            <div className="text-[#A5A8B5] text-[14px] font-[600]">{isAdmin ? "Elizabeth" : "Uthman"}</div>
+                            <div className="text-[#A5A8B5] text-[12px]">{isAdmin ? "Admin" : "Employee"}</div>
                         </div>
 
                         <div className="w-[20px] h-[20px] ml-[15px] flex items-center justify-center cursor-pointer border border-[#FFFFFF] rounded-full transition duration-200">
@@ -84,7 +86,7 @@ const AdminNavbar = () => {
             <div className="mt-4 flex items-center justify-between relative z-[50] max-860:hidden">
                 <div className="text-[32px] font-[700]">
                     <h1 className="text-white">
-                        Welcome, <span className="text-[#A5A8B5]">Elizabeth</span>
+                        Welcome, <span className="text-[#A5A8B5]">{isAdmin ? "Elizabeth" : "Uthman"}</span>
                     </h1>
 
                 </div>
@@ -141,10 +143,10 @@ const AdminNavbar = () => {
 
                             <div className="flex items-center justify-between gap-3 mb-[30px]">
                                 <div className="flex items-center gap-5">
-                                    <img src="/images/avatar.png" alt="Profile" className="w-10 h-10 rounded-full" />
+                                    <img src={isAdmin ? "/images/avatar.png" : "/images/empl.png"} alt="Profile" className="w-10 h-10 rounded-full" />
                                     <div>
-                                        <p className="text-[#A5A8B5] font-semibold">Elizabeth</p>
-                                        <p className="text-sm text-[#A5A8B5]">Admin</p>
+                                        <p className="text-[#A5A8B5] font-semibold">{isAdmin ? "Elizabeth" : "Uthman"}</p>
+                                        <p className="text-sm text-[#A5A8B5]">{isAdmin ? "Admin" : "Employee"}</p>
                                     </div>
 
                                 </div>
