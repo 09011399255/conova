@@ -98,7 +98,7 @@ export default function BookingDetailsModal({ show, onClose, booking }: { show: 
                         })}
                     </div>
 
-                    <button className=" border flex items-center mt-[16px] justify-center gap-1    border-[#134562] text-[#134562]font-[500] text-[14px] px-4 py-2 rounded hover:bg-[#103a4c]">
+                    <button className=" border flex items-center mt-[16px] justify-center gap-1    border-[#134562] hover:text-white text-[#134562]font-[500] text-[14px] px-4 py-2 rounded hover:bg-[#103a4c]">
                         <img
                             src="/images/export.png"
                             alt="Download"

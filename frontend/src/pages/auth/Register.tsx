@@ -36,17 +36,21 @@ export default function Register() {
 
 
     const onSubmit = (data: RegisterSchema) => {
-        console.log(data);
-        navigate("/verify");
+        try {
+            console.log("FORM DATA:", data);
+            navigate("/verify");
+        } catch (error) {
+            console.error("Submit error:", error);
+        }
     };
 
-    const [selectedRole, setSelectedRole] = useState<string>(getValues("role"));
+    // const [selectedRole, setSelectedRole] = useState<string>(getValues("role"));
 
-    const handleRoleChange = (val: string) => {
-        const role = val as "user" | "admin";
-        setSelectedRole(role);
-        setValue("role", role);
-    };
+    // const handleRoleChange = (val: string) => {
+    //     const role = val as "user" | "admin";
+    //     setSelectedRole(role);
+    //     setValue("role", role);
+    // };
     return (
         <AuthLayout>
             <AuthContainer >
@@ -139,11 +143,11 @@ export default function Register() {
                             {errors.email && <p className="text-xs text-[#EF4444] mt-1">{errors.email.message}</p>}
                         </div>
 
-                        <CustomRoleDropdown
+                        {/* <CustomRoleDropdown
                             value={selectedRole}
                             onChange={handleRoleChange}
                             error={errors.role?.message}
-                        />
+                        /> */}
 
 
                         <div className="my-[20px]">

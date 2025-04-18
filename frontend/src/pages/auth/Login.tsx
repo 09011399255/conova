@@ -28,7 +28,7 @@ export default function Login() {
 
     const onSubmit = (data: LoginSchema) => {
         console.log(data);
-        navigate("/account-type")
+        navigate("/dashboard")
     };
 
     return (
@@ -107,11 +107,11 @@ export default function Login() {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     {...register("password")}
-                                    className={`mt-[8px] w-full px-4 py-2 border-2 rounded-md bg-transparent outline-none transition-all
-                                        ${errors.email
+                                    className={`mt-[8px] w-full px-4 py-2 border rounded-md bg-transparent outline-none transition-all
+                                        ${errors.password
                                             ? "border-[#EF4444] focus:ring-[#EF4444]"
                                             : passwordValue
-                                                ? " border-[#292524] border-2" // <-- persist focus look when there's a value
+                                                ? "border-2 border-[#292524]" // <-- persist focus look when there's a value
                                                 : "border-[#D7D3D0] focus:border-[#292524]"
                                         }`} placeholder="Enter your password"
                                 />

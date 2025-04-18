@@ -267,7 +267,7 @@ const AddSpacePage = () => {
                             file: formValues.file || null,
                         });
                         setShowModal(true);
-                    }} className="border w-full md:w-[250px] p-2 justify-center border-[#134562] hover:bg-[#103a4c] text-[#134562] rounded flex items-center gap-2 text-sm">
+                    }} className="border w-full md:w-[250px] p-2 justify-center border-[#134562] hover:bg-[#103a4c] hover:text-white text-[#134562] rounded flex items-center gap-2 text-sm">
                         Preview
                     </button>
                     <button type="submit" className="bg-[#134562] w-full  md:w-[250px] p-2 justify-center  hover:bg-[#103a4c] text-white rounded flex items-center gap-2 text-sm">

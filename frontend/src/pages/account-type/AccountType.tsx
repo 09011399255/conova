@@ -13,7 +13,7 @@ export default function AccountType() {
 
     const handleContinue = () => {
         if (selectedType) {
-            navigate("/dashboard");
+            navigate("/register", { state: { accountType: selectedType } });
         }
     };
 
@@ -41,48 +41,41 @@ export default function AccountType() {
                             <button
                                 type="button"
                                 onClick={() => handleSelect("employee")}
-                                className={`flex flex-col items-center justify-center border rounded-xl p-4 w-32 transition ${selectedType === "employee"
-                                    ? "bg-[#134562]"
-                                    : "bg-white"
-                                    }`}
+                                className={`flex flex-col items-center justify-center bg-[#FFFFFF] border-2 rounded-xl px-4 w-32 transition
+    ${selectedType === "employee" ? "border-[#134562]" : "bg-[#FFFFFF]"}`}
                             >
                                 <img
-                                    src={
-                                        selectedType === "employee"
-                                            ? "/images/empactive.png"
-                                            : "/images/emp.png"
-                                    }
+                                    src={selectedType === "employee" ? "/images/br1.png" : "/images/br2.png"}
                                     alt="Employee Icon"
-                                    className="w-8 h-8 mb-2"
+                                    className="w-8 h-8 mb-[20px] mt-[16px]"
                                 />
-                                <span className={`text-sm whitespace-nowrap font-medium ${selectedType === "employee"
-                                    ? "text-white"
-                                    : "text-black"
-                                    }`}>I’m an Employee</span>
+                                <span
+                                    className={`text-sm   whitespace-nowrap font-medium ${selectedType === "employee" ? "text-[#134562]" : "text-black"
+                                        }`}
+                                >
+                                    I’m an Employee
+                                </span>
                             </button>
 
                             <button
                                 type="button"
                                 onClick={() => handleSelect("learner")}
-                                className={`flex flex-col items-center justify-center border rounded-xl p-4 w-32 transition ${selectedType === "learner"
-                                    ? "bg-[#134562]"
-                                    : "bg-white"
-                                    }`}
+                                className={`flex flex-col items-center bg-[#FFFFFF] justify-center border-2 rounded-xl p-4 w-32 transition
+    ${selectedType === "learner" ? "border-[#134562] " : "bg-[#FFFFFF]"}`}
                             >
                                 <img
-                                    src={
-                                        selectedType === "learner"
-                                            ? "/images/learneractive.png"
-                                            : "/images/learner.png"
-                                    }
+                                    src={selectedType === "learner" ? "/images/ln2.png" : "/images/ln1.png"}
                                     alt="Learner Icon"
-                                    className="w-8 h-8 mb-2"
+                                    className="w-8 h-8 mb-[20px] mt-[16px]"
                                 />
-                                <span className={`text-sm font-medium ${selectedType === "learner"
-                                    ? "text-white"
-                                    : "text-black"
-                                    }`}>I’m a Learner</span>
+                                <span
+                                    className={`text-sm font-medium ${selectedType === "learner" ? "text-[#134562]" : "text-black"
+                                        }`}
+                                >
+                                    I’m a Learner
+                                </span>
                             </button>
+
                         </div>
 
                         <div className="flex justify-center mt-[40px]">

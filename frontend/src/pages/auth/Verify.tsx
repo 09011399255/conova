@@ -13,7 +13,11 @@ export default function Verify() {
     const [otpValues, setOtpValues] = useState(defaultOtpValues);
     const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
     const navigate = useNavigate();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
 
 
     const handleChange = (index: number, value: string) => {
@@ -26,6 +30,7 @@ export default function Verify() {
             inputsRef.current[index + 1]?.focus();
         }
     };
+
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Backspace" && !otpValues[index] && index > 0) {
@@ -40,21 +45,30 @@ export default function Verify() {
         e.preventDefault();
         const otp = otpValues.join("");
         console.log("Submitted OTP:", otp);
-        setIsModalOpen(true);
-
+        setIsEmailModalOpen(true);
         // Add actual verification logic here
 
         // For now, go to reset-password page
     };
 
+    const handleEmailModalContinue = () => {
+        setIsEmailModalOpen(false);
+        setIsLocationModalOpen(true);
+    };
+
+    const handleLocationModalContinue = () => {
+        setIsLocationModalOpen(false);
+        setIsSuccess(true);
+    };
+
     return (
         <AuthLayout>
             <AuthContainer>
-                <div className="lg:bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
+                <div className="bg-[#1345621A]   px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
-                        className="absolute top-1/2 w-[70%] opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 w-[60%] opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
                     />
 
                     <form
@@ -110,15 +124,79 @@ export default function Verify() {
 
                     </form>
                 </div>
-                {isModalOpen && (
-                    <Modal
-                        onClose={() => setIsModalOpen(false)}
-                        title="Email Verified Successfully"
-                        message="Your email has been successfully verified. You can now continue."
-                        buttonText="Continue"
-                        redirectTo="/login"
-                    />
+                {isEmailModalOpen && (
+
+                    <Modal onClose={() => setIsEmailModalOpen(false)} showCloseButton={true}>
+
+                        <div className="flex justify-center ">
+                            <img
+                                src="/images/success.png"
+                                alt="Verified"
+                                className="w-[100px] h-[100px] mb-[40px] mt-[20px]"
+                            />
+                        </div>
+                        <h2 className="text-xl font-semibold  mb-[40px]">Email Verified Successfully!</h2>
+                        <button
+                            onClick={handleEmailModalContinue}
+                            className="bg-[#134562] w-full mb-[20px] text-white px-6 py-2 rounded-md mt-4 hover:bg-[#0f364b] transition"
+                        >
+                            Continue
+                        </button>
+                    </Modal>
+
                 )}
+
+                {isLocationModalOpen && (
+                    <Modal onClose={() => setIsLocationModalOpen(false)} closeOnOutsideClick={false}>
+                        <h2 className="text-[24px] font-[700] text-left mb-2">Enable Location Services</h2>
+                        <p className="text-[#A5A8B5] text-[16px] font-[400] text-left mb-4">
+                            Conova needs your location to verify you are physically near an authorized workspace.
+                            We never store or share your exact location.
+                        </p>
+
+                        <div className="flex justify-center mb-4">
+                            <img
+                                src="/images/loc2.png"
+                                alt="Location"
+                                className="w-[30%]"
+                            />
+                        </div>
+                        <button
+                            onClick={handleLocationModalContinue}
+                            className="bg-[#134562] w-full text-white px-6 py-2 rounded-md mt-4 hover:bg-[#0f364b] transition"
+                        >
+                            Enable Location Access
+                        </button>
+                    </Modal>
+                )}
+
+                {isSuccess && (
+                    <Modal onClose={() => setIsSuccess(false)} closeOnOutsideClick={false}> {/* ✅ FIXED this line */}
+                        <h2 className="text-[23px] font-[700] text-center mb-2 ">
+                            Welcome to Conova, Oluwatofunmi! 🎉
+                        </h2>
+                        <p className="text-[#A5A8B5] text-[16px] font-[400] text-center mb-4">
+                            Your account has been successfully created.
+                            Use your unique QR code to check in at workspaces and verify your presence easily.
+                        </p>
+
+                        <div className="flex justify-center mb-4">
+                            <img
+                                src="/images/qr.png"
+                                alt="QR Code"
+                                className="w-[35%]"
+                            />
+                        </div>
+                        <button
+                            onClick={() => navigate("/dashboard")}
+                            className="bg-[#134562] w-full text-white px-6 py-2 rounded-md mt-4 hover:bg-[#0f364b] transition"
+                        >
+                            Go to Dashboard
+                        </button>
+                    </Modal>
+                )}
+
+
             </AuthContainer>
         </AuthLayout>
     );

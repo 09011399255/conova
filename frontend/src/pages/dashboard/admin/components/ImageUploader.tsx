@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 
 export default function ImageUploader({
     file,
@@ -66,12 +66,12 @@ export default function ImageUploader({
                             onDragOver={handleDragOver}
                             onDragEnter={handleDragOver}
                             onDragLeave={handleDragLeave}
-                            className={`flex flex-col h-[200px] items-center justify-center border-2 border-dashed bg-[#FAFAFA] ${isDragging ? "border-[#134562] bg-[#FAFAFA]" : "border-[#DCDFE3]"
+                            className={`flex flex-col h-[200px] items-center justify-center border-2 border-dashed hover:border-[#134562] bg-[#FAFAFA] ${isDragging ? "border-[#134562] bg-[#FAFAFA]" : "border-[#DCDFE3]"
                                 } rounded-md p-6 cursor-pointer text-center transition`}
                         >
                             <label htmlFor="file-upload" className="flex flex-col items-center">
                                 <img src="/images/upload.png" className="w-6 h-6 mb-2" />
-                                <span className="text-[14px] font-[500] text-[#0E6BA8] underline">
+                                <span className="text-[14px] font-[500] text-[#0E6BA8] underline cursor-pointer ">
                                     Click to upload
                                 </span>
                                 <span className="text-[14px] font-[500] text-[#A5A8B5]">

@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import AddMemberForm from "../components/AddMemberForm";
 import AdminModal from "../components/AdminModal";
 import CustomDropdown from "../components/CustomDropdown";
 import { mockSpaces } from "../../../../data/mockSpaces";
 import { MapPin } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import AddNewFloorPlan from "../components/AddNewFloorPlan";
 
 const locationOptions = [
     { label: 'Constain Office', value: 'constain' },
@@ -37,8 +38,13 @@ const roomCapacityOptions = [
 
 
 const Spaces = () => {
+
+
+
     const [showModal, setShowModal] = useState(false);
-    const [activeTab, setActiveTab] = useState<"image View" | "floor Plan" | "list View">("image View");
+    const [activeTab, setActiveTab] = useState<"image View" | "floor Plan" | "list View">(() => {
+        return (localStorage.getItem("spacesActiveTab") as "image View" | "floor Plan" | "list View") || "image View";
+    });
     const [selectedLocation, setSelectedLocation] = useState("");
     const [selectedWorkspace, setSelectedWorkspace] = useState("");
     const [selectedFloor, setSelectedFloor] = useState("");
@@ -58,10 +64,23 @@ const Spaces = () => {
                         <img src="/images/add.png" alt="Add" className="w-4 h-4" />
                         Add New Space
                     </button>
-                    <button onClick={() => setShowModal(true)} className="border border-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] text-[#134562] px-4 py-2.5 rounded flex items-center gap-2 text-sm">
-                        <img src="/images/add2.png" alt="Add" className="w-4 h-4" />
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="group border border-[#134562] mt-[10px] md:mt-0 hover:bg-[#103a4c] hover:text-white text-[#134562] px-4 py-2.5 rounded flex items-center gap-2 text-sm"
+                    >
+                        <img
+                            src="/images/add2.png"
+                            alt="Add"
+                            className="w-4 h-4 group-hover:hidden" // hide this one on hover
+                        />
+                        <img
+                            src="/images/add.png"
+                            alt="Add Hover"
+                            className="w-4 h-4 hidden group-hover:block" // show this one on hover
+                        />
                         Add Floor Plan
                     </button>
+
                 </div>
 
             </div>
@@ -72,7 +91,10 @@ const Spaces = () => {
                     return (
                         <button
                             key={tab}
-                            onClick={() => setActiveTab(tab as "image View" | "floor Plan" | "list View")}
+                            onClick={() => {
+                                setActiveTab(tab as "image View" | "floor Plan" | "list View");
+                                localStorage.setItem("spacesActiveTab", tab);
+                            }}
                             className={`relative  px-4 pb-2 text-sm font-medium transition-colors duration-200 ${isActive
                                 ? "text-[#134562]"
                                 : "text-[#A5A8B5] hover:text-[#134562]"
@@ -207,8 +229,9 @@ const Spaces = () => {
             </div>
 
 
-            <AdminModal show={showModal} onClose={() => setShowModal(false)}>
-                <AddMemberForm onClose={() => setShowModal(false)} />
+
+            <AdminModal show={showModal} onClose={() => setShowModal(false)} maxWidth="max-w-[583px]">
+                <AddNewFloorPlan onClose={() => setShowModal(false)} />
             </AdminModal>
         </div>
     );

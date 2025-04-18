@@ -9,8 +9,15 @@ import PermissionMatrix from "../components/Permission";
 const tabs = ["All Users", "User Roles"];
 
 const UsersRoles = () => {
-    const [activeTab, setActiveTab] = useState("All Users");
+    const [activeTab, setActiveTab] = useState(() => {
+        return localStorage.getItem("activeTab") || "All Users";
+    });
     const [showModal, setShowModal] = useState(false);
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+        localStorage.setItem("activeTab", tab);
+    };
 
 
     return (
@@ -31,7 +38,7 @@ const UsersRoles = () => {
                 {tabs.map((tab) => (
                     <button
                         key={tab}
-                        onClick={() => setActiveTab(tab)}
+                        onClick={() => handleTabChange(tab)}
                         className={`relative px-6 py-2  text-sm w-full font-medium transition-colors duration-300 rounded-[4px] ${activeTab === tab ? "bg-[#134562] text-white" : "bg-[#FAFAFB] text-[#A5A8B5]"
                             }`}
                     >
@@ -58,7 +65,7 @@ const UsersRoles = () => {
                     {activeTab === "All Users" ? (
                         <UserTable />
                     ) : (
-                        <PermissionMatrix/>
+                        <PermissionMatrix />
                     )}
                 </motion.div>
             </div>

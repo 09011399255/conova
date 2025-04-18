@@ -24,7 +24,7 @@ export default function Reset() {
     return (
         <AuthLayout>
             <AuthContainer >
-                <div className="lg:bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
+                <div className="bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
                     <img
                         src="/images/C.png"
                         alt="Login illustration"

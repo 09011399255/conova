@@ -45,7 +45,7 @@ export default function ResetOtpVerification() {
     return (
         <AuthLayout>
             <AuthContainer>
-                <div className="lg:bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
+                <div className="bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
@@ -54,7 +54,7 @@ export default function ResetOtpVerification() {
 
                     <form
                         onSubmit={handleSubmitOtp}
-                        className="relative w-full max-w-md md:w-[400px] space-y-6 z-10"
+                        className="relative w-full max-w-md space-y-6 z-10"
                     >
                         <div className="text-center">
                             <h2 className="text-2xl font-bold lg:mt-[50px] text-black">

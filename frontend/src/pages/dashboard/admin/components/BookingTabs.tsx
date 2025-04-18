@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 const attendeeImages: Record<string, string> = {
     "Bethany Hall": "/images/att1.png",
@@ -93,8 +93,17 @@ const bookings = {
 };
 
 const BookingTabs = () => {
-    const [activeTab, setActiveTab] = useState<"confirmed" | "pending">("confirmed");
+    const [activeTab, setActiveTab] = useState<"confirmed" | "pending">(() => {
+        if (typeof window !== "undefined") {
+            const saved = localStorage.getItem("bookingActiveTab");
+            if (saved === "confirmed" || saved === "pending") return saved;
+        }
+        return "confirmed";
+    });
 
+    useEffect(() => {
+        localStorage.setItem("bookingActiveTab", activeTab);
+    }, [activeTab]);
     const data = bookings[activeTab];
 
     return (

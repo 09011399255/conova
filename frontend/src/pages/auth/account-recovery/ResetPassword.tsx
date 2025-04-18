@@ -33,6 +33,8 @@ export default function ResetPassword() {
 
     };
 
+    const navigate = useNavigate();
+
     const [showPassword, setShowPassword] = useState(false);
 
 
@@ -40,7 +42,7 @@ export default function ResetPassword() {
     return (
         <AuthLayout>
             <AuthContainer >
-                <div className="lg:bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
+                <div className="bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
@@ -139,13 +141,25 @@ export default function ResetPassword() {
                 </div>
 
                 {isModalOpen && (
-                    <Modal
-                        onClose={() => setIsModalOpen(false)}
-                        title="Password Reset Successfully"
-                        message="Your password has been reset successfully. You can now log in with your new password."
-                        buttonText="Log In"
-                        redirectTo="/login"
-                    />
+
+
+                    <Modal onClose={() => setIsModalOpen(false)} showCloseButton={true}>
+
+                        <div className="flex justify-center">
+                            <img
+                                src="/images/success.png"
+                                alt="Verified"
+                                className="w-[100px] mb-[40px] mt-[20px] h-[100px]"
+                            />
+                        </div>
+                        <h2 className="text-xl font-semibold mb-[40px]">Password Reset Successfully</h2>
+                        <button
+                            onClick={() => navigate("/login")}
+                            className="bg-[#134562] text-white w-full px-6 py-2 rounded-md mb-[20px] hover:bg-[#0f364b] transition"
+                        >
+                            Log In
+                        </button>
+                    </Modal>
                 )}
 
             </AuthContainer>

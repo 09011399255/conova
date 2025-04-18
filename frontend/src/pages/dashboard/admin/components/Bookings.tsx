@@ -1,6 +1,6 @@
 import { Calendar, Search } from "lucide-react";
 import CustomDropdown from "./CustomDropdown";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import DatePicker from "react-datepicker";
 import BookingTable from "./BookingTable";
 const spaceTypes = [
