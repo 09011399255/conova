@@ -94,10 +94,12 @@ class Floor(models.Model):
         upload_to=rename_file,
         help_text="Floor plan Image",
     )
-    
+
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['floor_no', 'workspace'], name="unique_floor_per_workspace")
+            UniqueConstraint(
+                fields=["floor_no", "workspace"], name="unique_floor_per_workspace"
+            )
         ]
 
     def __str__(self):
@@ -142,9 +144,17 @@ class Room(models.Model):
         help_text="Does the room requires approval.",
     )
     is_available = models.BooleanField(
-        default=False,
+        default=True,
         help_text="Status of the room",
     )
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["room_no", "floor", "room_type"],
+                name="unique_room_per_floor",
+            )
+        ]
 
     def __str__(self):
         return f"{self.room_type} room {self.room_no}"
@@ -155,14 +165,14 @@ class Seat(models.Model):
         max_length=100,
         help_text="Seat number e.g 15, 15c, 23a, e.t.c.",
     )
-    room = models.ForeignKey(
+    floor = models.ForeignKey(
         Floor,
         on_delete=models.CASCADE,
         related_name="seats",
         help_text="The floor number you adding the seat to. e.g Floor 1",
     )
     is_available = models.BooleanField(
-        default=False,
+        default=True,
         help_text="Status of the room",
     )
     x_coordinate = models.FloatField(
@@ -179,7 +189,17 @@ class Seat(models.Model):
         storage=MediaCloudinaryStorage,
         upload_to=rename_file,
         help_text="The image of the room.",
+        blank=True,
+        null=True,
     )
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["floor", "seat_no"],
+                name="unique_seat_per_floor",
+            )
+        ]
 
     def __str__(self):
         return self.seat_no
