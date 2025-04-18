@@ -8,18 +8,13 @@ import AuthLayout from "../../components/layouts/AuthLayout";
 import { Link, useNavigate } from "react-router-dom";
 import AuthContainer from "../../components/layouts/AuthContainer";
 import { registerSchema, RegisterSchema } from "../../schemas/registerSchema";
-import CustomRoleDropdown from "../../components/ui/CustomRoleDropdown";
-
 import { useWatch } from "react-hook-form";
-import { CheckCircle, Circle } from "lucide-react";
 import { PasswordRules } from "./components/PasswordRules";
 
 export default function Register() {
     const navigate = useNavigate();
     const {
         register,
-        getValues,
-        setValue,
         handleSubmit,
         control,
         formState: { errors },

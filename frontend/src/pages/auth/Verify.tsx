@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import AuthLayout from "../../components/layouts/AuthLayout";
 import AuthContainer from "../../components/layouts/AuthContainer";
-import EmailVerifiedModal from "./components/Modal";
 import Modal from "./components/Modal";
 
 const OTP_LENGTH = 6;

@@ -1,5 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Trash2 } from "lucide-react";
 
 const users = [
     {

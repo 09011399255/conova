@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import AddMemberForm from "../components/AddMemberForm";
 import AdminModal from "../components/AdminModal";
 import CustomDropdown from "../components/CustomDropdown";
 import { mockSpaces } from "../../../../data/mockSpaces";
-import { MapPin } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AddNewFloorPlan from "../components/AddNewFloorPlan";
 
 const locationOptions = [

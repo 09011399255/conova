@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../../components/layouts/AuthLayout";
 import AuthContainer from "../../../components/layouts/AuthContainer";
-import { loginSchema, LoginSchema } from "../../../schemas/loginSchema";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { resetPasswordSchema, ResetPasswordSchema } from "../../../schemas/resetPasswordSchema";
