@@ -86,8 +86,7 @@ const Chart: React.FC = () => {
                     <option>Berlin Hub</option>
                 </select>
 
-                {/* Legend */}
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center mt-[-10px] md:mt-0 gap-4 text-sm">
                     <div className="flex items-center gap-1">
                         <span className="w-3 h-3 rounded-full bg-[#16B364]" />
                         <span>Meeting rooms</span>
@@ -98,7 +97,6 @@ const Chart: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Tabs */}
                 <div className="flex gap-2 mt-2 sm:mt-0 border p-[6px] border-[#F1F1F4] bg-[#FAFAFB]">
                     <button className="bg-[#134562] text-white text-sm px-4 py-1 rounded-md">Days</button>
                     <button className="text-[#A5A8B5] text-sm px-4 py-1 rounded-md hover:bg-[#134562] hover:text-white">Months</button>
