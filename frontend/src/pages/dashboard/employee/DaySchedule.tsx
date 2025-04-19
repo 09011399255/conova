@@ -28,7 +28,12 @@ const bookedSlots = [
     },
 ];
 
-const DayViewCalendar = () => {
+interface DayViewCalendarProps {
+    step: number;
+    setStep: React.Dispatch<React.SetStateAction<number>>;
+    setShowModalContinue: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const DayViewCalendar: React.FC<DayViewCalendarProps> = ({ step, setStep, setShowModalContinue }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     const filteredSlots = bookedSlots.filter(slot => {
@@ -154,6 +159,10 @@ const DayViewCalendar = () => {
                     onClose={() => setShowModal(false)}
                     selectedDate={selectedDate}
                     selectedTime={selectedTime}
+                    setStep={setStep}
+                    step={step}
+                    setShowModalContinue={setShowModalContinue}
+
                 />
             </AdminModal>
         </div>

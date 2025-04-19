@@ -1,9 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { format } from 'date-fns';
-import SaveNotification from '../admin/components/SaveNotification';
 
 const schema = z.object({
     title: z.string().min(1, 'Meeting title is required'),
@@ -18,11 +16,18 @@ type FormValues = z.infer<typeof schema>;
 export default function AddMeetingDetails({
     onClose,
     selectedDate,
-    selectedTime
+    selectedTime,
+    // step,
+    setStep,
+    setShowModalContinue,
 }: {
     onClose: () => void;
     selectedDate?: Date;
     selectedTime?: { hour: number; minute: number } | null;
+    step: number;
+    setStep: React.Dispatch<React.SetStateAction<number>>;
+    setShowModalContinue: React.Dispatch<React.SetStateAction<boolean>>;
+
 }) {
     const {
         register,
@@ -38,22 +43,20 @@ export default function AddMeetingDetails({
         },
     });
 
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
+    // const [showToast, setShowToast] = useState(false);
+    // const [toastMessage, setToastMessage] = useState("");
 
     const onSubmit = (data: FormValues) => {
         console.log('Meeting Data:', data);
-        setToastMessage("Meeting added successfully!");
-        setShowToast(true);
-
-        setTimeout(() => {
-            setShowToast(false);
-            onClose();
-        }, 2000);
+        setStep(3);
+        setShowModalContinue(true);
     };
+
+
 
     return (
         <>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {/* Header */}
                 <div className="flex justify-between items-start">
@@ -131,6 +134,7 @@ export default function AddMeetingDetails({
                 {/* Submit */}
                 <div className="text-right">
                     <button
+
                         type="submit"
                         className="px-6 py-2 bg-[#134562] text-white rounded-md text-sm hover:bg-[#0f3a4c]"
                     >
@@ -139,7 +143,7 @@ export default function AddMeetingDetails({
                 </div>
             </form>
 
-            {showToast && <SaveNotification showToast={showToast} message={toastMessage} />}
+            {/* {showToast && <SaveNotification showToast={showToast} message={toastMessage} />} */}
         </>
     );
 }

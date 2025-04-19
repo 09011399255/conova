@@ -3,10 +3,9 @@ import { motion } from "framer-motion";
 import CustomDropdown from "../admin/components/CustomDropdown";
 import { hubbleSpaces } from "../../../data/huddleSpaces";
 import { Users } from "lucide-react";
-import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import DayTimeSelector from "./DaySchedule";
 import DayViewCalendar from "./DaySchedule";
+import AdminModal from "../admin/components/AdminModal";
 
 
 
@@ -44,22 +43,6 @@ const steps = [
     { label: "Confirm booking" },
 ];
 
-const bookedSlots = [
-    { start: '08:00', end: '09:30' },
-    { start: '15:00', end: '16:30' },
-];
-
-const allTimes = [
-    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-    '17:00', '17:30', '18:00',
-];
-
-const isTimeBooked = (time: string) => {
-    return bookedSlots.some(slot => time >= slot.start && time < slot.end);
-};
-
 
 
 const BookRoom = () => {
@@ -73,9 +56,8 @@ const BookRoom = () => {
     const [selectedFloor, setSelectedFloor] = useState("");
     const [selectedCapacity, setSelectedCapacity] = useState("");
     const [step, setStep] = useState(1);
-    // Inside your component
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedTime, setSelectedTime] = useState<string | null>(null);
+    const [showModalContinue, setShowModalContinue] = useState(true);
+
 
 
     return (
@@ -138,7 +120,7 @@ const BookRoom = () => {
                                 onClick={() => {
                                     if (isClickable) setStep(stepNumber);
                                 }}
-                                className={`flex items-center gap-2 focus:outline-none ${isCompleted || isFuture ? 'cursor-pointer' : 'cursor-default'
+                                className={`flex items-center gap-2 focus:outline-none ${isFuture ? 'cursor-not-allowed ' : 'cursor-pointer'
                                     }`}
                             >
                                 <div
@@ -247,8 +229,43 @@ const BookRoom = () => {
                             )}
 
                             {step === 2 && (
-                                <DayViewCalendar />
+                                <DayViewCalendar step={step} setStep={setStep} setShowModalContinue={setShowModalContinue}/>
                             )}
+
+                            {
+                                step === 3 && (
+                                    <AdminModal show={showModalContinue} onClose={() => setShowModalContinue(false)} maxWidth="max-w-[583px]">
+
+                                        <form className="space-y-5">
+                                            {/* Header */}
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h2 className="text-[20px] font-[700] text-black">Add Meeting Details</h2>
+                                                    <p className="text-[#A5A8B5] text-[14px] font-[400]">Fill in the details below to schedule a meeting</p>
+                                                </div>
+
+                                                <button type="button" onClick={() =>
+                                                    setShowModalContinue(false) /* Close the modal */
+                                                } className="text-gray-500 hover:text-gray-700">
+                                                    <img src="/images/close.png" alt="Close" className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                            {/* Submit */}
+                                            <div className="text-right">
+                                                <button
+
+                                                    type="submit"
+                                                    className="px-6 py-2 bg-[#134562] text-white rounded-md text-sm hover:bg-[#0f3a4c]"
+                                                >
+                                                    Continue
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                    </AdminModal>
+                                )
+
+                            }
 
                         </div>
                     )}
