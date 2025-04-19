@@ -59,11 +59,11 @@ const notificationsData = [
         location: "Floor 3 east wing",
         meetingDescription: "A collaborative session to explore creative directions, review mockups, and align on visual goals for the upcoming product sprint. Bring your sketches, moodboards, and wild ideas!",
         teamMembers: [
-            { name: "Bethany Hall", avatar: "/images/avatar1.png" },
-            { name: "Jolie Noah", avatar: "/images/avatar2.png" },
-            { name: "Jaylon Bothman", avatar: "/images/avatar3.png" },
-            { name: "Jaylon Bothman", avatar: "/images/avatar4.png" },
-            { name: "Jaylon Bothman", avatar: "/images/avatar5.png" },
+            { name: "Bethany Hall", avatar: "/images/avatar1.png", status: "accepted" },
+            { name: "Jolie Noah", avatar: "/images/avatar2.png", status: "accepted" },
+            { name: "Jaylon Bothman", avatar: "/images/avatar3.png", status: "Rejected" },
+            { name: "Jaylon Bothman", avatar: "/images/avatar4.png", status: "accepted" },
+            { name: "Jaylon Bothman", avatar: "/images/avatar5.png", status: "Rejected" },
 
         ],
     }
@@ -182,7 +182,15 @@ const NotificationsList = () => {
                 </div>
             </div>
             {selectedInvite && (
-                <AdminModal show={true} onClose={() => setSelectedInvite(null)} maxWidth="max-w-[500px]">
+                <AdminModal show={true} onClose={() => setSelectedInvite(null)} maxWidth={
+                    selectedInvite?.type === "invite"
+                        ? "max-w-[600px]"
+                        : selectedInvite?.type === "seat"
+                            ? "max-w-[500px]"
+                            : selectedInvite?.type === "meeting"
+                                ? "max-w-[600px]"
+                                : "max-w-[500px]"
+                }>
                     <InviteModal onClose={() => setSelectedInvite(null)} data={selectedInvite} />
                 </AdminModal>
             )}

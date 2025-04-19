@@ -3,6 +3,7 @@ import { useState } from "react";
 interface TeamMember {
     name: string;
     avatar: string;
+    status?: string;
 }
 
 type InviteData = {
@@ -62,6 +63,20 @@ const InviteModal = ({ onClose, data }: InviteModalProps) => {
                     <p className="text-[14px] font-[500]">
                         Scheduled for {data.schedule} {data.timeRange && ` ${data.timeRange}`}
                     </p>
+                    <div className="mt-6 flex gap-4">
+                        <button
+                            onClick={handleResponse}
+                            className="bg-[#134562] font-[500] text-[14px] text-white w-[140px] py-2 rounded"
+                        >
+                            Change seat
+                        </button>
+                        <button
+                            onClick={handleResponse}
+                            className="border border-[#134562] font-[500] text-[14px] text-[#134562] w-[140px] py-2 rounded"
+                        >
+                            Cancel booking
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <>
@@ -97,10 +112,35 @@ const InviteModal = ({ onClose, data }: InviteModalProps) => {
                                     <div key={index} className="flex items-center gap-1 border border-[#DCDFE3] px-3 py-2 rounded-[8px] bg-[#FAFAFA] shadow-sm">
                                         <img src={member.avatar} alt={member.name} className="w-6 h-6 rounded-full" />
                                         <span className="text-[14px]">{member.name}</span>
+                                        {
+                                            data.type === "meeting" && (<button
+                                                className={`px-2 py-1 rounded-[40px] ml-[3px] text-sm font-medium ${member.status === "accepted"
+                                                    ? "bg-[#EDFCF2] text-[#16B364]"
+                                                    : member.status === "Rejected"
+                                                        ? "bg-[#FEF2F2] text-[#EF4444]"
+                                                        : "bg-gray-400"
+                                                    }`}
+                                            >
+                                                {member.status}
+                                            </button>)
+                                        }
+
                                     </div>
                                 ))}
                             </div>
                         </div>
+                        {
+                            data.type === "meeting" && (
+                                <div className="mt-6 flex gap-4">
+                                    <button
+                                        onClick={handleResponse}
+                                        className="bg-[#134562] font-[500] text-[14px] text-white w-[140px] py-2 rounded"
+                                    >
+                                        Check-in
+                                    </button>
+                                </div>
+                            )}
+
                         {data.type === "invite" && !responded && (
                             <div className="mt-6 flex gap-4">
                                 <button

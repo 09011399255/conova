@@ -3,6 +3,10 @@ import { motion } from "framer-motion";
 import CustomDropdown from "../admin/components/CustomDropdown";
 import { hubbleSpaces } from "../../../data/huddleSpaces";
 import { Users } from "lucide-react";
+import 'react-calendar/dist/Calendar.css';
+import DayViewCalendar from "./DaySchedule";
+import AdminModal from "../admin/components/AdminModal";
+
 
 
 const locationOptions = [
@@ -32,6 +36,13 @@ const roomCapacityOptions = [
     { label: '20+ People', value: '20+' },
 ];
 
+const steps = [
+    { label: "Choose room" },
+    { label: "Select time" },
+    { label: "Add team members" },
+    { label: "Confirm booking" },
+];
+
 
 
 const BookRoom = () => {
@@ -44,6 +55,10 @@ const BookRoom = () => {
     const [selectedWorkspace, setSelectedWorkspace] = useState("");
     const [selectedFloor, setSelectedFloor] = useState("");
     const [selectedCapacity, setSelectedCapacity] = useState("");
+    const [step, setStep] = useState(1);
+    const [showModalContinue, setShowModalContinue] = useState(true);
+
+
 
     return (
         <div className="max-940:px-[15px] px-[50px] max-860:px-[10px] font-manrope">
@@ -90,6 +105,47 @@ const BookRoom = () => {
                 })}
             </div>
 
+            <div className="flex items-center justify-center w-full gap-4 mt-6 mb-6">
+                {steps.map((s, index) => {
+                    const stepNumber = index + 1;
+                    const isCompleted = step > stepNumber;
+                    const isActive = step === stepNumber;
+                    const isFuture = step < stepNumber;
+
+                    const isClickable = isCompleted;
+
+                    return (
+                        <div key={s.label} className="flex w-full items-center gap-2">
+                            <button
+                                onClick={() => {
+                                    if (isClickable) setStep(stepNumber);
+                                }}
+                                className={`flex items-center gap-2 focus:outline-none ${isFuture ? 'cursor-not-allowed ' : 'cursor-pointer'
+                                    }`}
+                            >
+                                <div
+                                    className={`w-8 h-8 flex items-center justify-center rounded-full font-semibold text-white 
+              ${isCompleted ? 'bg-[#134562]' : isActive ? 'bg-[#134562]' : 'bg-[#DCDFE3] text-[#A5A8B5]'}`}
+                                >
+                                    {isCompleted ? '✔' : stepNumber}
+                                </div>
+                                <span
+                                    className={`text-sm ${isActive || isCompleted ? 'text-[#134562]' : 'text-[#A5A8B5]'}`}
+                                >
+                                    {s.label}
+                                </span>
+                            </button>
+
+                            {index < steps.length - 1 && (
+                                <div className="w-[130px] h-[2px] bg-[#DCDFE3]" />
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+
+
 
             <div className="mt-8">
                 <motion.div
@@ -102,76 +158,118 @@ const BookRoom = () => {
 
                     {activeTab === "image View" && (
                         <div>
-                            <div className=" flex flex-col md:flex-row gap-4 items-center w-full ">
-
-                                <CustomDropdown
-                                    value={selectedLocation}
-                                    onChange={setSelectedLocation}
-                                    options={locationOptions}
-                                    placeholder="Location"
-                                />
-
-                                <CustomDropdown
-                                    value={selectedWorkspace}
-                                    onChange={setSelectedWorkspace}
-                                    options={workspaceAreaOptions}
-                                    placeholder="Workspace Area"
-                                />
-
-                                <CustomDropdown
-                                    value={selectedFloor}
-                                    onChange={setSelectedFloor}
-                                    options={floorOptions}
-                                    placeholder="Floor"
-                                />
-
-                                <CustomDropdown
-                                    value={selectedCapacity}
-                                    onChange={setSelectedCapacity}
-                                    options={roomCapacityOptions}
-                                    placeholder="Room Capacity"
-                                />
-
-
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
-                                {hubbleSpaces.map((space) => (
-                                    <div key={space.id} className="bg-white rounded-lg mock mb-[15px]">
-                                        <img
-                                            src={space.image}
-                                            alt={space.name}
-                                            className="rounded-t-[8px] mb-2 w-full object-cover"
+                            {step === 1 && (
+                                <>
+                                    <div className="flex flex-col md:flex-row gap-4 items-center w-full">
+                                        <CustomDropdown
+                                            value={selectedLocation}
+                                            onChange={setSelectedLocation}
+                                            options={locationOptions}
+                                            placeholder="Location"
                                         />
-                                        <div className="p-3">
-                                            <p className="font-[400] text-[16px] text-[#1A1A1A] mb-[8px]">{space.name}</p>
-                                            <div className="flex items-center gap-2 text-[12px] text-[#6B7280] mb-[22px]">
-                                                <div className="flex items-center gap-[4px]">
-                                                    <img src="/images/location.png" className="w-4 h-4" />
-                                                    <span className="text-black font-[500] text-[12px]">Floor {space.floor}</span>
-                                                </div>
-                                                <div className="flex items-center gap-[4px]">
-                                                    <Users size={16} />
-                                                    <span className="text-black font-[500] text-[12px]">{space.participants} Participants</span>
+                                        <CustomDropdown
+                                            value={selectedWorkspace}
+                                            onChange={setSelectedWorkspace}
+                                            options={workspaceAreaOptions}
+                                            placeholder="Workspace Area"
+                                        />
+                                        <CustomDropdown
+                                            value={selectedFloor}
+                                            onChange={setSelectedFloor}
+                                            options={floorOptions}
+                                            placeholder="Floor"
+                                        />
+                                        <CustomDropdown
+                                            value={selectedCapacity}
+                                            onChange={setSelectedCapacity}
+                                            options={roomCapacityOptions}
+                                            placeholder="Room Capacity"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
+                                        {hubbleSpaces.map((space) => (
+                                            <div key={space.id} className="bg-white rounded-lg mock mb-[15px]">
+                                                <img
+                                                    src={space.image}
+                                                    alt={space.name}
+                                                    className="rounded-t-[8px] mb-2 w-full object-cover"
+                                                />
+                                                <div className="p-3">
+                                                    <p className="font-[400] text-[16px] text-[#1A1A1A] mb-[8px]">{space.name}</p>
+                                                    <div className="flex items-center gap-2 text-[12px] text-[#6B7280] mb-[22px]">
+                                                        <div className="flex items-center gap-[4px]">
+                                                            <img src="/images/location.png" className="w-4 h-4" />
+                                                            <span className="text-black font-[500] text-[12px]">Floor {space.floor}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-[4px]">
+                                                            <Users size={16} />
+                                                            <span className="text-black font-[500] text-[12px]">{space.participants} Participants</span>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        disabled={space.status === "booked"}
+                                                        onClick={() => {
+                                                            if (space.status !== "booked") {
+                                                                setStep(2); // Move to select time
+                                                            }
+                                                        }}
+                                                        className={`w-full text-sm px-4 py-2 rounded transition ${space.status === "booked"
+                                                            ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
+                                                            : "bg-[#134562] text-white hover:bg-[#103a4c]"
+                                                            }`}
+                                                    >
+                                                        {space.status === "booked" ? "Booked" : "Check availability"}
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button
-                                                disabled={space.status === "booked"}
-                                                className={`w-full text-sm px-4 py-2 rounded transition ${space.status === "booked"
-                                                    ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
-                                                    : "bg-[#134562] text-white hover:bg-[#103a4c]"
-                                                    }`}
-                                            >
-                                                {space.status === "booked" ? "Booked" : "Check availability"}
-                                            </button>
-                                        </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </>
+                            )}
+
+                            {step === 2 && (
+                                <DayViewCalendar step={step} setStep={setStep} setShowModalContinue={setShowModalContinue}/>
+                            )}
+
+                            {
+                                step === 3 && (
+                                    <AdminModal show={showModalContinue} onClose={() => setShowModalContinue(false)} maxWidth="max-w-[583px]">
+
+                                        <form className="space-y-5">
+                                            {/* Header */}
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h2 className="text-[20px] font-[700] text-black">Add Meeting Details</h2>
+                                                    <p className="text-[#A5A8B5] text-[14px] font-[400]">Fill in the details below to schedule a meeting</p>
+                                                </div>
+
+                                                <button type="button" onClick={() =>
+                                                    setShowModalContinue(false) /* Close the modal */
+                                                } className="text-gray-500 hover:text-gray-700">
+                                                    <img src="/images/close.png" alt="Close" className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                            {/* Submit */}
+                                            <div className="text-right">
+                                                <button
+
+                                                    type="submit"
+                                                    className="px-6 py-2 bg-[#134562] text-white rounded-md text-sm hover:bg-[#0f3a4c]"
+                                                >
+                                                    Continue
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                    </AdminModal>
+                                )
+
+                            }
 
                         </div>
-
-
                     )}
+
 
                     {activeTab === "floor Plan" && (
                         <div className="mt-4">
