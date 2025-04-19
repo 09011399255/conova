@@ -139,19 +139,30 @@ class RoomSerializer(AvailabilityMixin, serializers.ModelSerializer):
         )
 
 
+class SeatBookingSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = SeatBooking
+        fields = ("id", "user", "seat", "status", "created_at", "updated_at")
+
+
 class SeatSerializer(serializers.ModelSerializer):
+    SeatBookings = SeatBookingSerializer(many=True, read_only=True)
     # availability = AvailabilityScheduleUpdateSerializer(required=False)
     # availability_field = "seat"
 
     class Meta:
         model = Seat
         fields = (
+            "id",
             "floor",
             "seat_no",
             "is_available",
             "x_coordinate",
             "y_coordinate",
             "seat_img",
+            "SeatBookings",
             # "availability",
         )
 
@@ -163,12 +174,6 @@ class FloorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Floor
         fields = ("id", "floor_no", "floorplan", "rooms", "seats")
-
-
-class SeatBookingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SeatBooking
-        fields = "__all__"
 
 
 class RoomBookingSerializer(serializers.ModelSerializer):

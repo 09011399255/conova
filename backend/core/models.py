@@ -61,6 +61,7 @@ class ConovaUser(AbstractUser):
         editable=False,
         unique=True,
     )
+    prefers_email_notification = models.BooleanField(default=True)
 
     objects = ConovaUserManager()
 
@@ -280,8 +281,16 @@ class Booking(models.Model):
         default="confirmed",
         help_text="The status of the booking e.g confirmed, pending, cancelled",
     )
-    start_at = models.DateTimeField(help_text="The time and date booking starts from")
-    ends_at = models.DateTimeField(help_text="The time and date when the booking ends")
+    start_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="The time and date booking starts from",
+    )
+    ends_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="The time and date when the booking ends",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -306,7 +315,7 @@ class SeatBooking(Booking):
 
     class Meta:
         default_related_name = "SeatBookings"
-        unique_together = ("user", "seat")
+        unique_together = ("user", "seat", "status")
 
 
 class RoomBooking(Booking):
@@ -331,6 +340,21 @@ class RoomBooking(Booking):
     class Meta:
         default_related_name = "RoomBookings"
         # unique_together = ("room")
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(
+        ConovaUser,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+    )
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    notification_type = models.CharField(
+        max_length=15,
+        choices=[("booking", "Booking"), ("invite", "Invite")],
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Attendance(models.Model):
