@@ -62,6 +62,20 @@ const InviteModal = ({ onClose, data }: InviteModalProps) => {
                     <p className="text-[14px] font-[500]">
                         Scheduled for {data.schedule} {data.timeRange && ` ${data.timeRange}`}
                     </p>
+                    <div className="mt-6 flex gap-4">
+                        <button
+                            onClick={handleResponse}
+                            className="bg-[#134562] font-[500] text-[14px] text-white w-[140px] py-2 rounded"
+                        >
+                            Change seat
+                        </button>
+                        <button
+                            onClick={handleResponse}
+                            className="border border-[#134562] font-[500] text-[14px] text-[#134562] w-[140px] py-2 rounded"
+                        >
+                            Cancel booking
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <>

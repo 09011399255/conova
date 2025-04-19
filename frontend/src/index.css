@@ -121,3 +121,7 @@ html::-webkit-scrollbar-thumb:hover {
 .change {
   background: rgba(16, 56, 79, 0.05);
 }
+
+.sect{
+  background: rgba(22, 179, 100, 0.10);
+}
