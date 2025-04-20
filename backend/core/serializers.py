@@ -1,14 +1,20 @@
+from datetime import timedelta
 from .models import (
+    ConovaUser,
     Floor,
     AvailabilitySchedule,
     Room,
     RoomBooking,
+    RoomBookingInvite,
     Seat,
     SeatBooking,
+    Team,
     Workspace,
 )
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+
 
 User = get_user_model()
 
@@ -117,19 +123,13 @@ class WorkspaceSerializer(AvailabilityMixin, serializers.ModelSerializer):
         fields = ("id", "name", "location", "floor_nos", "availability")
 
 
-class FloorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Floor
-        fields = ("id", "floor_no", "floorplan")
-
-
 class RoomSerializer(AvailabilityMixin, serializers.ModelSerializer):
     availability = AvailabilityScheduleUpdateSerializer(required=False)
     availability_field = "room"
 
     class Meta:
         model = Room
-        field = (
+        fields = (
             "id",
             "floor",
             "room_type",
@@ -145,29 +145,138 @@ class RoomSerializer(AvailabilityMixin, serializers.ModelSerializer):
         )
 
 
+class SeatBookingSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = SeatBooking
+        fields = ("id", "user", "seat", "status", "created_at", "updated_at")
+
+
 class SeatSerializer(serializers.ModelSerializer):
+    SeatBookings = SeatBookingSerializer(many=True, read_only=True)
     # availability = AvailabilityScheduleUpdateSerializer(required=False)
     # availability_field = "seat"
 
     class Meta:
         model = Seat
-        field = (
+        fields = (
+            "id",
+            "floor",
             "seat_no",
             "is_available",
-            " x_coordinate",
+            "x_coordinate",
             "y_coordinate",
             "seat_img",
+            "SeatBookings",
             # "availability",
         )
 
 
-class SeatBookingSerializer(serializers.ModelSerializer):
+class FloorSerializer(serializers.ModelSerializer):
+    rooms = RoomSerializer(many=True, read_only=True)
+    seats = SeatSerializer(many=True, read_only=True)
+
     class Meta:
-        model = SeatBooking
-        field = "__all__"
+        model = Floor
+        fields = ("id", "floor_no", "floorplan", "rooms", "seats")
 
 
 class RoomBookingSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    invited_users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=ConovaUser.objects.all(), required=False
+    )
+    start_at = serializers.DateTimeField(required=True)
+    ends_at = serializers.DateTimeField(required=True)
     class Meta:
         model = RoomBooking
-        field = "__all__"
+        fields = "__all__"
+
+    def validate(self, attrs):
+        buffer_time = timedelta(minutes=30)
+        start_at = attrs.get("start_at", getattr(self.instance, 'start_at', None))
+        ends_at = attrs.get("ends_at", getattr(self.instance, "ends_at", None))
+        
+        # Add buffer to end time before validating booking overlaps
+        ends_at += buffer_time
+        now = timezone.now()
+        room = attrs.get("room", getattr(self.instance, "room", None))
+
+        if start_at <= now:
+            raise serializers.ValidationError("Start time must be in the future.")
+
+        if ends_at <= start_at:
+            raise serializers.ValidationError("Ends time must be after start time.")
+
+        booking_day = start_at.strftime("%a").upper()
+        availability = AvailabilitySchedule.objects.filter(
+            room=room, day=booking_day
+        ).first()
+
+        if not availability or not availability.is_available:
+            raise serializers.ValidationError(
+                "Room is not available for booking on this day."
+            )
+
+        start_time = start_at.time()
+        end_time = ends_at.time()
+
+        if start_time < availability.start_time or end_time > availability.end_time:
+            raise serializers.ValidationError(
+                "Booking time must be within the room's available hours."
+            )
+
+        overlapping_booking = RoomBooking.objects.filter(
+            room=room,
+            start_at__lt=ends_at,
+            ends_at__gt=start_at,
+        )
+
+        if self.instance:
+            overlapping_booking = overlapping_booking.exclude(id=self.instance.id)
+
+        if overlapping_booking.exists():
+            raise serializers.ValidationError("The room is already booked for this time slot.")
+
+        # validating invited users
+        invited_users = attrs.get("invited_users", [])
+        creator = self.context["request"].user
+
+        # check for duplicates
+        if len(invited_users) > len(set(invited_users)):
+            raise serializers.ValidationError("Invited Users list contains duplicates.")
+
+        # ensure the person booking is not part of invitees
+        if creator in invited_users:
+            raise serializers.ValidationError("You cannot invite yourself.")
+
+        user_ids = [user.id for user in invited_users]
+        if not ConovaUser.objects.filter(id__in=user_ids).count() == len(invited_users):
+            raise serializers.ValidationError("One or more invited users do not exist.")
+        return attrs
+
+    def create(self, validated_data):
+        creator = self.context["request"].user
+        invited_users = validated_data.pop("invited_users", [])
+
+        validated_data["status"] = "pending"
+
+        booking = RoomBooking.objects.create(created_by=creator, **validated_data)
+
+        if invited_users:
+            booking.invited_users.add(*invited_users)
+
+        for user in invited_users:
+            RoomBookingInvite.objects.create(
+                booking=booking,
+                user = user,
+            )
+
+        return booking
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = "__all__"

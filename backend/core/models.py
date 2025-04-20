@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from cloudinary_storage.storage import MediaCloudinaryStorage
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import UniqueConstraint
+from django.core.mail import send_mail
+from django.db import transaction
 
 
 class ConovaUserManager(BaseUserManager):
@@ -61,11 +63,20 @@ class ConovaUser(AbstractUser):
         editable=False,
         unique=True,
     )
+    prefers_email_notification = models.BooleanField(default=True)
 
     objects = ConovaUserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+
+class Team(models.Model):
+    name = models.CharField(max_length=100)
+    members = models.ManyToManyField(ConovaUser, related_name="teams")
+
+    def __str__(self):
+        return self.name
 
 
 class Workspace(models.Model):
@@ -94,10 +105,12 @@ class Floor(models.Model):
         upload_to=rename_file,
         help_text="Floor plan Image",
     )
-    
+
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['floor_no', 'workspace'], name="unique_floor_per_workspace")
+            UniqueConstraint(
+                fields=["floor_no", "workspace"], name="unique_floor_per_workspace"
+            )
         ]
 
     def __str__(self):
@@ -142,9 +155,17 @@ class Room(models.Model):
         help_text="Does the room requires approval.",
     )
     is_available = models.BooleanField(
-        default=False,
+        default=True,
         help_text="Status of the room",
     )
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["room_no", "floor", "room_type"],
+                name="unique_room_per_floor",
+            )
+        ]
 
     def __str__(self):
         return f"{self.room_type} room {self.room_no}"
@@ -155,14 +176,14 @@ class Seat(models.Model):
         max_length=100,
         help_text="Seat number e.g 15, 15c, 23a, e.t.c.",
     )
-    room = models.ForeignKey(
+    floor = models.ForeignKey(
         Floor,
         on_delete=models.CASCADE,
         related_name="seats",
         help_text="The floor number you adding the seat to. e.g Floor 1",
     )
     is_available = models.BooleanField(
-        default=False,
+        default=True,
         help_text="Status of the room",
     )
     x_coordinate = models.FloatField(
@@ -179,7 +200,17 @@ class Seat(models.Model):
         storage=MediaCloudinaryStorage,
         upload_to=rename_file,
         help_text="The image of the room.",
+        blank=True,
+        null=True,
     )
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["floor", "seat_no"],
+                name="unique_seat_per_floor",
+            )
+        ]
 
     def __str__(self):
         return self.seat_no
@@ -260,8 +291,16 @@ class Booking(models.Model):
         default="confirmed",
         help_text="The status of the booking e.g confirmed, pending, cancelled",
     )
-    start_at = models.DateTimeField(help_text="The time and date booking starts from")
-    ends_at = models.DateTimeField(help_text="The time and date when the booking ends")
+    start_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="The time and date booking starts from",
+    )
+    ends_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="The time and date when the booking ends",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -286,13 +325,14 @@ class SeatBooking(Booking):
 
     class Meta:
         default_related_name = "SeatBookings"
-        unique_together = ("user", "seat")
+        unique_together = ("user", "seat", "status")
 
 
 class RoomBooking(Booking):
     room = models.ForeignKey(
         Room,
         on_delete=models.CASCADE,
+        related_name="bookings",
         help_text="The seat that is being booked",
     )
     meeting_title = models.CharField(
@@ -300,17 +340,98 @@ class RoomBooking(Booking):
         help_text="The title of the meeting to be held in the room",
     )
     meeting_description = models.TextField(help_text="Meeting description")
-    teams = models.ManyToManyField(
+    created_by = models.ForeignKey(
         ConovaUser,
-        help_text="users that would be present in the meeting.",
+        on_delete=models.CASCADE,
+        related_name="created_roombookings",
+        help_text="user making a room booking",
     )
+    invited_users = models.ManyToManyField(ConovaUser, related_name="room_invites")
 
     def __str__(self):
-        return f"{self.user.full_name} booked {self.room.room_type} {self.room.room_no}"
+        return f"{self.created_by.full_name} booked {self.room.room_type} {self.room.room_no}"
 
     class Meta:
-        default_related_name = "RoomBookings"
+        pass
         # unique_together = ("room")
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(
+        ConovaUser,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+    )
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    notification_type = models.CharField(
+        max_length=15,
+        choices=[("booking", "Booking"), ("invite", "Invite")],
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RoomBookingInvite(models.Model):
+    booking = models.ForeignKey(
+        RoomBooking, on_delete=models.CASCADE, related_name="invites"
+    )
+    user = models.ForeignKey(
+        ConovaUser,
+        on_delete=models.CASCADE,
+        related_name="invites",
+        blank=True,
+        null=True,
+    )
+    has_accepted = models.BooleanField(default=False)
+    has_declined = models.BooleanField(default=False)
+    invited_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.full_name} was invited to {self.booking.meeting_title}"
+
+    @transaction.atomic
+    def respond_to_invite(self, response, acting_user):
+        print(acting_user)
+        print(self.user)
+        if self.user != acting_user:
+            raise ValueError("You are not allowed to respond to this invite.")
+
+        if self.has_accepted or self.has_declined:
+            raise ValueError("You have already responded to this invite.")
+
+        if response == "accept":
+            self.has_accepted = True
+        elif response == "decline":
+            self.has_declined = True
+        else:
+            raise ValueError("Invalid response. Must be 'accept' or 'decline'.")
+
+        self.save()
+
+        action = "accepted" if response == "accept" else "declined"
+
+        Notification.objects.create(
+            user=self.booking.created_by,
+            message=f"{self.user.full_name} has {action} your invite for {self.booking.meeting_title}",
+            notification_type = "invite",
+        )
+        Notification.objects.create(
+            user = self.user,
+            message=f"You have {action} your invitation for {self.booking.meeting_title}",
+            notification_type = "invite",
+        )
+        send_mail(
+            subject=f"Invitation {action}",
+            message=f"{self.user.full_name} has {action} your invite for {self.booking.meeting_title}",
+            from_email="conova <noreply@conova.live>",
+            recipient_list=[self.booking.created_by.email]
+        )
+        send_mail(
+            subject=f"Invitation {action}",
+            message=f"You have {action} your invitation for {self.booking.meeting_title}",
+            from_email="conova <noreply@conova.live>",
+            recipient_list=[self.user.email],
+        )
 
 
 class Attendance(models.Model):
