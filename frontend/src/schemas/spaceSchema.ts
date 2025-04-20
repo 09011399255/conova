@@ -14,7 +14,6 @@ export const spaceSchema = z.object({
         .refine((file) => file && file.size <= 500000, {
             message: "File size must be less than 500KB",
         }),
-
 });
 
 export type SpaceFormData = z.infer<typeof spaceSchema>;

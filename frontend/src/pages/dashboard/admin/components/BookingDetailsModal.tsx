@@ -3,6 +3,8 @@ import dayjs from "dayjs";
 import AdminModal from "./AdminModal";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import 'react-calendar/dist/Calendar.css';
+
 
 export default function BookingDetailsModal({ show, onClose, booking }: { show: boolean; onClose: () => void; booking: any }) {
     if (!booking) return null;
