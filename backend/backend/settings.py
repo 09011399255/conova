@@ -187,12 +187,20 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+REDIS_URL = config('REDIS_URL', default='redis://localhost:6379')
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": config("LOCATION"),
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
@@ -219,5 +227,5 @@ SPECTACULAR_SETTINGS = {
     # "SERVERS":
 }
 
-#GOOGLE AUTH
+# GOOGLE AUTH
 GOOGLE_OAUTH2_CLIENT_ID = config("GOOGLE_OAUTH2_CLIENT_ID")
