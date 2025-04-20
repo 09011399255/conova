@@ -2,6 +2,7 @@ from .serializers import (
     FloorSerializer,
     RoomSerializer,
     SeatSerializer,
+    TeamSerializer,
     WorkspaceSerializer,
     SeatBookingSerializer,
     RoomBookingSerializer,
@@ -10,7 +11,9 @@ from .models import (
     ConovaUser,
     Floor,
     Room,
+    RoomBookingInvite,
     Seat,
+    Team,
     Workspace,
     SeatBooking,
     RoomBooking,
@@ -24,6 +27,21 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import transaction
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+
+
+class TeamViewset(viewsets.ModelViewSet):
+    """
+    API endpoint that allows teams to be viewed or edited.
+
+    - **List**: Returns all teams
+    - **Create**: Adds a new team with availability
+    - **Retrieve**: Gets a team and its schedule
+    """
+
+    serializer_class = TeamSerializer
+    queryset = Team.objects.all()
 
 
 class WorkspaceViewSet(viewsets.ModelViewSet):
@@ -212,3 +230,144 @@ class SeatBookingView(viewsets.ModelViewSet):
         self.perform_update(serializer)
 
         return Response(serializer.data)
+
+
+class RoomBookingViewset(viewsets.ModelViewSet):
+    queryset = RoomBooking.objects.all()
+    serializer_class = RoomBookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        user = request.user
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        booking = serializer.save()
+        invites = RoomBookingInvite.objects.filter(booking=booking)
+
+        for invitee in booking.invited_users.all():
+            invite = invites.filter(user=invitee).first()
+            if invite:
+                cta = f"https://conova.live/respond-invite/?invite_id={invite.id}"
+                Notification.objects.create(
+                    user=invitee,
+                    message=f"You've been invited to a booking in room {booking.room.room_no} by {user.full_name}",
+                    notification_type="invite",
+                )
+                send_mail(
+                    subject="meeting invite",
+                    message=(
+                        f"You've been invited to a booking in room {booking.room.room_no} by {user.full_name}, "
+                        f"Click the link below to respond to the invite:\n\n{cta}"
+                    ),
+                    from_email="conova <noreply@conova.live>",
+                    recipient_list=[invitee.email],
+                )
+        return Response(
+            self.get_serializer(booking).data, status=status.HTTP_201_CREATED
+        )
+
+    def update(self, request, *args, **kwargs):
+        booking = self.get_object()
+
+        original_start = booking.start_at
+        original_end = booking.ends_at
+        original_title = booking.meeting_title
+        original_description = booking.meeting_description
+        original_status = booking.status
+
+        serializer = self.get_serializer(booking, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        changes = []
+
+        if booking.start_at != original_start or booking.ends_at != original_end:
+            changes.append("time")
+
+        if booking.meeting_title != original_title or booking.meeting_description != original_description:
+            changes.append("details")
+
+        if booking.status != original_status:
+            changes.append("status")
+
+        messages = []
+
+        if "time" in changes:
+            messages.append(
+                f"Meeting details updated:\nTitle: {booking.meeting_title}\n"
+                f"New start: {booking.start_at}\nNew End: {booking.ends_at}"
+            )
+
+        if "details" in changes:
+           messages.append(f"Meeting details updated\nTitle: {booking.meeting_title}\n"
+            f"Description:{booking.meeting_description}")
+
+        if "status" in changes:
+            if booking.status == "cancelled":
+                messages.append(f"The meeting {booking.meeting_title} has been cancelled.")
+            elif booking.status == "confirmed":
+                messages.append(
+                    f"The meeting {booking.meeting_title} has been confirmed."
+                )
+        
+        if messages:
+            full_message = "\n\n".join(messages)
+            for invitee in booking.invited_users.all():
+                Notification.objects.create(
+                    user=invitee,
+                    messages=full_message,
+                    notification_type = "invite",
+                )
+                send_mail(
+                    subject="Meeting update",
+                    message=full_message,
+                    from_email="conova <noreply@conova.live>",
+                    recipient_list=[invitee.email],
+                )
+                
+        return Response(self.get_serializer(booking).data)
+
+class RespondToInviteView(APIView):
+    """
+    API endpoint for responding to a room booking invite.
+
+    This endpoint allows an invited user to either accept or decline a meeting invitation.
+    The user must be authenticated and must be the same person who was invited.
+
+    Expected request:
+        POST /api/room-booking/{invited_id}/respond/
+        Body: {
+            "response": "accept" | "decline"
+        }
+
+    Responses:
+    - 200 OK: Invite successfully accepted or declined.
+    - 400 Bad Request: If the response is invalid, invite does not exist, or user has already responded.
+    - 403 Forbidden: If the invite does not belong to the requesting user.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, invite_id):
+        user = request.user
+        response = request.data.get("response")
+        invite = get_object_or_404(RoomBookingInvite, id=invite_id, user=user)
+
+        if response not in ["accept", "decline"]:
+            return Response(
+                {"message": "Response must be either 'accept' or 'decline'."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            invite.respond_to_invite(response, user)
+        except ValueError as e:
+            return Response(
+                {"message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(
+            {"message": f"Invite successfully {response}ed."},
+            status=status.HTTP_200_OK,
+        )
