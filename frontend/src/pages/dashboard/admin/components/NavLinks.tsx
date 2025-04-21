@@ -14,7 +14,7 @@ const navLinks = [
     { name: 'Reports & Analytics', path: '/dashboard/reports', adminOnly: true },
 
     { name: 'Integrations', path: '/integrations' },
-    { name: 'Settings', path: '/settings' },
+    { name: 'Settings', path: '/dashboard/settings' },
 ];
 
 
