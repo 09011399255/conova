@@ -7,17 +7,19 @@ from django.core.files import File
 from django.core.cache import cache
 from django.conf import settings
 import qrcode.constants
-
+import requests
+from decouple import config
+from django.template.loader import  render_to_string
 
 def generate_otp(email):
     email = email.strip().lower()
     otp = f"{secrets.randbelow(10**6):06d}"
-    cache.set(f"otp_{email}", otp, timeout=600)
+    cache.set(f"otp_{email}", otp, timeout=60)
     return otp
 
 def generate_token(email):
     token = str(uuid.uuid4().hex)
-    cache.set(f"token_{email}", token, timeout=600)
+    cache.set(f"token_{email}", token, timeout=60)
     return token
 
 def verify_token(email, token):
@@ -70,3 +72,40 @@ def rename_file(instance, filename):
     id = instance.id
     filename = f"user_{id}{ext}"
     return filename
+
+
+def send_conova_email(to, subject, template_name=None, context=None, text_body=None, from_email=None):
+    MAILGUN_API_KEY = config("MAILGUN_API_KEY")
+    MAILGUN_DOMAIN= config("MAILGUN_DOMAIN")
+    DEFAULT_FROM_EMAIL= config("DEFAULT_FROM_EMAIL")
+    
+    if not from_email:
+        from_email = DEFAULT_FROM_EMAIL
+        
+    if isinstance(to, str):
+        to = [to]
+        
+    html_body =""
+    if template_name:
+        html_body = render_to_string(template_name, context or {})
+        
+    if not text_body:
+        text_body = "This email requires an HTMl-capable client"
+        
+    response = requests.post(
+        f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
+        auth=("api", MAILGUN_API_KEY),
+        data={
+            "from": from_email,
+            "to": to,
+            "subject": subject,
+            "text": text_body,
+            "html": html_body
+        }
+    )
+    
+    if response.status_code != 200:
+        print("Mailgun failed:", response.text)
+        return False
+    
+    return True

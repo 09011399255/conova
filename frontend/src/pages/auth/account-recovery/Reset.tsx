@@ -1,35 +1,34 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../../components/layouts/AuthLayout";
 import AuthContainer from "../../../components/layouts/AuthContainer";
-import { loginSchema, LoginSchema } from "../../../schemas/loginSchema";
+import { resetSchema, ResetSchema } from "../../../schemas/resetSchema";
 
 export default function Reset() {
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginSchema>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<ResetSchema>({
+        resolver: zodResolver(resetSchema),
     });
 
-
-    const onSubmit = (data: LoginSchema) => {
-        console.log(data);
-    };
-
     const navigate = useNavigate();
+
+    const onSubmit = (data: ResetSchema) => {
+        console.log(data);
+        navigate("/reset-otp-verification");
+    };
 
     return (
         <AuthLayout>
             <AuthContainer >
-                <div className="lg:bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
+                <div className="bg-[#1345621A] px-[10px] py-[30px] lg:p-[30px] rounded-[20px] relative">
                     <img
                         src="/images/C.png"
                         alt="Login illustration"
-                        className="absolute top-1/2 w-[60%] opacity-40 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 w-[60%] opacity-80 left-1/2 transform z-0 -translate-x-1/2 -translate-y-1/2"
                     />
 
                     <form
@@ -37,7 +36,7 @@ export default function Reset() {
                         className="relative w-full max-w-md space-y-6 z-10"
                     >
                         <div className="text-center ">
-                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black">
+                            <h2 className="text-2xl font-bold lg:mt-[50px] text-black mb-[12px]">
                                 Reset Password
                             </h2>
                             <p className="text-sm text-[#A5A8B5] mt-1">
@@ -67,7 +66,6 @@ export default function Reset() {
                         </div>
 
                         <button
-                            onClick={() => navigate("/reset-otp-verification")}
                             type="submit"
                             className="w-full bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
                         >

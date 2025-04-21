@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-DEBUG = True#config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool) 
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -35,7 +35,12 @@ else:
 
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ["conova.herokuapp.com", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    "conova.live",
+    "https://conova-b166dac9f14d.herokuapp.com/",
+    "127.0.0.1",
+    "localhost",
+]
 
 
 # Application definition
@@ -55,6 +60,7 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "phonenumber_field",
     "drf_spectacular",
+    "corsheaders",
     # Local
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
@@ -63,8 +69,8 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -97,26 +103,19 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if DEBUG:
+DATABASES = {
+    "default": {}
+}
+
+if "DATABASE_URL" in os.environ:
+    DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-else:
-    DATABASES = {"default": dj_database_url.config(default=config("DATABASE_URL"))}
-    # tmpPostgres = urlparse(config("DATABASE_URL"))
-    # DATABASES = {
-    #     "default": {
-    #         "ENGINE": "django.db.backends.postgresql",
-    #         "NAME": tmpPostgres.path.replace("/", ""),
-    #         "USER": tmpPostgres.username,
-    #         "PASSWORD": tmpPostgres.password,
-    #         "HOST": tmpPostgres.hostname,
-    #         "PORT": 5432,
-    #     }
-    # }
 
 
 # Password validation
@@ -187,16 +186,24 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+REDIS_URL = config("REDIS_URL", default="redis://localhost:6379")
+
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": config("LOCATION"),
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=15),
     "ROTATE_REFRESH_TOKEN": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_BEARER_TYPES": ("Bearer",),
@@ -216,8 +223,20 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Conova(API) — Workspace Booking Platform",
     "DESCRIPTION": "Conova is a smart workspace booking platform built for teams and organizations to manage physical spaces like offices, meeting rooms, or learning hubs.",
     "VERSION": "1.0.0",
-    # "SERVERS":
+    "SERVE_INCLUDE_SCHEMA": False,
+    "DEFAULT_GENERATORS": [
+        "drf_spectacular.generators.SchemaGenerator",
+    ],
 }
 
-#GOOGLE AUTH
+# GOOGLE AUTH
 GOOGLE_OAUTH2_CLIENT_ID = config("GOOGLE_OAUTH2_CLIENT_ID")
+
+# CORS
+CORS_ALLOWED_ORIGINS = [
+    "https://conova.live",
+    "https://www.conova.live",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+]
