@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import ssl
 from urllib.parse import urlparse
 import dj_database_url
 from pathlib import Path
@@ -191,23 +192,22 @@ REDIS_URL = config("REDIS_URL")  # No default needed if it's always from env
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_URL,
+        "LOCATION": os.getenv("REDIS_URL"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "SSL": True,
-            "SSL_CERT_REQS": "certifi.where()",
+            "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": ssl.CERT_NONE},
         },
     }
 }
 
-
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    "ssl": {
-        "cert_reqs": "CERT_REQUIRED",
-    },
-}
+# CELERY_BROKER_URL = REDIS_URL
+# CELERY_RESULT_BACKEND = REDIS_URL
+# CELERY_BROKER_TRANSPORT_OPTIONS = {
+#     "ssl": {
+#         "cert_reqs": "CERT_REQUIRED",
+#     },
+# }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
