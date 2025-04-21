@@ -118,7 +118,6 @@ else:
     }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -191,7 +190,7 @@ REDIS_URL = config("REDIS_URL", default="redis://localhost:6379")
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": REDIS_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
@@ -224,7 +223,10 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Conova(API) — Workspace Booking Platform",
     "DESCRIPTION": "Conova is a smart workspace booking platform built for teams and organizations to manage physical spaces like offices, meeting rooms, or learning hubs.",
     "VERSION": "1.0.0",
-    # "SERVERS":
+    "SERVE_INCLUDE_SCHEMA": False,
+    "DEFAULT_GENERATORS": [
+        "drf_spectacular.generators.SchemaGenerator",
+    ],
 }
 
 # GOOGLE AUTH
