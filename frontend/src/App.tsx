@@ -16,18 +16,23 @@ import UsersRoles from "./pages/dashboard/admin/pages/UsersRoles";
 import Spaces from "./pages/dashboard/admin/pages/Spaces";
 import AddSpacePage from "./pages/dashboard/admin/pages/AddSpacePage";
 import BookRoom from "./pages/dashboard/employee/BookRoom";
+import NotFound from "./components/ui/NotFound";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
+        //Implemented a wildcard route just in case
+        <Route path="*" element={<NotFound />} />
         <Route path="/" element={<Register />} />
-
         <Route path="/verify" element={<Verify />} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset" element={<Reset />} />
-        <Route path="/reset-otp-verification" element={<ResetOtpVerification />} />
+        <Route
+          path="/reset-otp-verification"
+          element={<ResetOtpVerification />}
+        />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/account-type" element={<AccountType />} />
         <Route path="/dashboard" element={<Admin />}>
@@ -38,8 +43,6 @@ const App: React.FC = () => {
           <Route path="spaces" element={<Spaces />} />
           <Route path="book-room" element={<BookRoom />} />
           <Route path="spaces/new" element={<AddSpacePage />} />
-
-
         </Route>
       </Routes>
     </BrowserRouter>
