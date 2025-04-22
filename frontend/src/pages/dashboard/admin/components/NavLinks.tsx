@@ -13,7 +13,7 @@ const navLinks = [
     { name: 'Availability', path: '/dashboard/availability', adminOnly: true },
     { name: 'Reports & Analytics', path: '/dashboard/reports', adminOnly: true },
 
-    { name: 'Integrations', path: '/integrations' },
+    { name: 'Integrations', path: '/dashboard/integrations' },
     { name: 'Settings', path: '/dashboard/settings' },
 ];
 

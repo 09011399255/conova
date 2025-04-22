@@ -17,6 +17,7 @@ import Spaces from "./pages/dashboard/admin/pages/Spaces";
 import AddSpacePage from "./pages/dashboard/admin/pages/AddSpacePage";
 import BookRoom from "./pages/dashboard/employee/BookRoom";
 import SettingsPage from "./pages/dashboard/employee/Settings";
+import IntegrationsPage from "./pages/dashboard/admin/components/Integration";
 
 const App: React.FC = () => {
   return (
@@ -40,10 +41,7 @@ const App: React.FC = () => {
           <Route path="book-room" element={<BookRoom />} />
           <Route path="spaces/new" element={<AddSpacePage />} />
           <Route path="settings" element={<SettingsPage />} />
-
-
-
-
+          <Route path="integrations" element={<IntegrationsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
