@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import ssl
 from urllib.parse import urlparse
 import dj_database_url
 from pathlib import Path
@@ -118,7 +119,6 @@ else:
     }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -187,24 +187,39 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-REDIS_URL = config("REDIS_URL", default="redis://localhost:6379")
+REDIS_URL = config("REDIS_URL")
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": REDIS_URL,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
+if DEBUG:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "SSL": True,
+                "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": ssl.CERT_NONE},
+            },
+        }
+    }
 
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
+# CELERY_BROKER_URL = REDIS_URL
+# CELERY_RESULT_BACKEND = REDIS_URL
+# CELERY_BROKER_TRANSPORT_OPTIONS = {
+#     "ssl": {
+#         "cert_reqs": "CERT_REQUIRED",
+#     },
+# }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=15),
     "ROTATE_REFRESH_TOKEN": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_BEARER_TYPES": ("Bearer",),
@@ -224,7 +239,10 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Conova(API) — Workspace Booking Platform",
     "DESCRIPTION": "Conova is a smart workspace booking platform built for teams and organizations to manage physical spaces like offices, meeting rooms, or learning hubs.",
     "VERSION": "1.0.0",
-    # "SERVERS":
+    "SERVE_INCLUDE_SCHEMA": False,
+    "DEFAULT_GENERATORS": [
+        "drf_spectacular.generators.SchemaGenerator",
+    ],
 }
 
 # GOOGLE AUTH

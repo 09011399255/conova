@@ -45,8 +45,6 @@ class ConovaUser(AbstractUser):
     role = models.CharField(
         max_length=10,
         choices=ROLES,
-        blank=True,
-        default="employee",
     )
     qr_code_image = models.ImageField(
         storage=MediaCloudinaryStorage, upload_to=rename_file

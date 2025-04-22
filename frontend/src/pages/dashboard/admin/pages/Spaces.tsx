@@ -47,6 +47,12 @@ const Spaces = () => {
     const [selectedWorkspace, setSelectedWorkspace] = useState("");
     const [selectedFloor, setSelectedFloor] = useState("");
     const [selectedCapacity, setSelectedCapacity] = useState("");
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [bookedSeatDetails, setBookedSeatDetails] = useState<{ seat: string; location: string } | null>(null);
+    const [showChangeSeatModal, setShowChangeSeatModal] = useState(false);
+    const [selectedNewSeat, setSelectedNewSeat] = useState<{ seat: string; location: string } | null>(null);
+
+
 
     const navigate = useNavigate();
 
@@ -189,6 +195,18 @@ const Spaces = () => {
                                             <div className="flex items-center gap-2 mb-2">
                                                 <button
                                                     disabled={space.status === "booked"}
+                                                    onClick={() => {
+                                                        if (space.status !== "booked") {
+                                                            if (bookedSeatDetails) {
+                                                                setSelectedNewSeat({ seat: space.name, location: space.location || "Unknown Location" });
+                                                                setShowChangeSeatModal(true);
+                                                            } else {
+                                                                setBookedSeatDetails({ seat: space.name, location: space.location || "Unknown Location" });
+                                                                setShowSuccessModal(true);
+                                                            }
+                                                        }
+                                                    }}
+
                                                     className={`w-full text-sm  px-4 py-2 rounded flex justify-center items-center gap-2 transition ${space.status === "booked"
                                                         ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
                                                         : "bg-[#134562] text-white hover:bg-[#103a4c]"
@@ -249,7 +267,66 @@ const Spaces = () => {
             <AdminModal show={showModal} onClose={() => setShowModal(false)} maxWidth="max-w-[583px]">
                 <AddNewFloorPlan onClose={() => setShowModal(false)} />
             </AdminModal>
-        </div>
+
+            <AdminModal show={showSuccessModal} onClose={() => setShowSuccessModal(false)} maxWidth="max-w-[500px]">
+                <div className="text-center px-1 py-2">
+                    <div className="flex justify-end items-start mb-[28px]">
+
+                        <button type="button" onClick={() => setShowSuccessModal(false)} className="text-gray-500 hover:text-gray-700">
+                            <img src="/images/close.png" alt="Close" className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div className="flex justify-center mb-4">
+                        <img src="/images/check-badge.png" alt="Success" className="w-[60px] h-[60px]" />
+                    </div>
+                    <h3 className="text-[14px] font-[400] mb-2">Seat Booked!</h3>
+                    <p className="text-[14px] font-[400] text-[#A5A8B5]">
+                        You've successfully booked {bookedSeatDetails?.seat} at {bookedSeatDetails?.location}
+                    </p>
+                    <button
+                        onClick={() => {
+                            setShowSuccessModal(false)
+                        }}
+                        className="mt-[36px] w-full bg-[#10384F] text-white px-6 py-2 font-[500] rounded-[4px] hover:bg-[#103a4c] text-[14px]"
+                    >
+                        Change seat
+                    </button>
+                </div>
+            </AdminModal >
+
+            <AdminModal show={showChangeSeatModal} onClose={() => setShowChangeSeatModal(false)} maxWidth="max-w-[500px]">
+                <div className="text-center px-1 py-2">
+                    <div className="flex justify-end items-start mb-[20px]">
+                        <button type="button" onClick={() => setShowChangeSeatModal(false)} className="text-gray-500 hover:text-gray-700">
+                            <img src="/images/close.png" alt="Close" className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div className="flex justify-center mb-4">
+                        <img src="/images/warning.png" alt="Warning" className="w-[48px] h-[48px]" />
+                    </div>
+
+                    <h3 className="text-[16px] font-semibold mb-1">Change seat?</h3>
+                    <p className="text-[14px] text-[#6B7280] mb-6">
+                        You already booked {bookedSeatDetails?.seat}.<br />
+                        Do you want to switch to {selectedNewSeat?.seat} – Near Window?
+                    </p>
+
+                    <button
+                        onClick={() => {
+                            setBookedSeatDetails(selectedNewSeat);
+                            setShowChangeSeatModal(false);
+                        }}
+                        className="w-full bg-[#134562] hover:bg-[#103a4c] text-white px-6 py-2 font-medium rounded-[4px] text-[14px]"
+                    >
+                        Change seat
+                    </button>
+                </div>
+            </AdminModal>
+
+
+        </div >
     );
 };
 

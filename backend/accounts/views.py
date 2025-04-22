@@ -1,4 +1,3 @@
-import uuid
 from django.urls import reverse
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
@@ -21,17 +20,22 @@ from core.utils import (
     verify_otp,
     set_cookies,
     verify_token,
+    send_conova_email,
 )
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.serializers import (
+    TokenRefreshSerializer,
+    TokenObtainPairSerializer,
+)
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.utils.crypto import get_random_string
+from drf_spectacular.utils import extend_schema, OpenApiTypes
 
 
 User = get_user_model()
@@ -59,6 +63,15 @@ class ConovaUserProfileView(RetrieveUpdateDestroyAPIView):
 
 
 class ConovaUserRegistrationView(APIView):
+
+    @extend_schema(
+        request=ConovaCreateUserSerializer,
+        responses={
+            status.HTTP_201_CREATED: ConovaCreateUserSerializer,
+            status.HTTP_400_BAD_REQUEST: OpenApiTypes.OBJECT,
+        },
+        description="The Enpoints registers a new user and send OTP for verification",
+    )
     def post(self, request, *args, **kwargs):
         data = request.data
         email = data.get("email")
@@ -71,14 +84,12 @@ class ConovaUserRegistrationView(APIView):
         )
         user.qr_code_image = generate_qr_code(checkin_url)
         user.save()
-        send_mail(
-            subject="Verify your account",
-            message=f"Your otp is {otp} and is valid for 10 minutes.",
-            from_email="<Conova <noreply@conova.ng.com>",
-            recipient_list=[
-                email,
-            ],
-        )
+        send_conova_email(
+                subject="Verify your account",
+                template_name="emails/test_email.html",
+                to=[email],
+                context={"otp": otp, "user": user.full_name}
+            )
         return Response(
             {
                 "message": "User registered successfully. An OTP has been sent to your email for verification.",
@@ -89,6 +100,15 @@ class ConovaUserRegistrationView(APIView):
 
 
 class ConovaActivateUserView(APIView):
+
+    @extend_schema(
+        request=ConovaActivateUserSerializer,
+        responses={
+            status.HTTP_200_OK: "OTP verified, Accounts activated successfully.",
+            status.HTTP_400_BAD_REQUEST: OpenApiTypes.OBJECT,
+        },
+        description="Activates a user account using an OTP sent to their email.",
+    )
     def post(self, request, *args, **kwargs):
         serializer = ConovaActivateUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -118,6 +138,14 @@ class ConovaActivateUserView(APIView):
 
 
 class ConovaLoginView(TokenObtainPairView):
+    @extend_schema(
+        request=TokenObtainPairSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiTypes.OBJECT,  # Adjust if you have a specific success serializer
+            status.HTTP_401_UNAUTHORIZED: OpenApiTypes.OBJECT,
+        },
+        description="Logs in an existing user and returns access and refresh tokens (set as cookies).",
+    )
     def post(self, request, *args, **kwargs):
         email_field = User.EMAIL_FIELD
         email = request.data.get(email_field)
@@ -157,6 +185,14 @@ class ConovaLoginView(TokenObtainPairView):
 
 
 class ConovaTokenRefreshView(APIView):
+    @extend_schema(
+        # request=TokenRefreshSerializer,n
+        responses={
+            status.HTTP_200_OK: OpenApiTypes.OBJECT,
+            status.HTTP_401_UNAUTHORIZED: OpenApiTypes.OBJECT,
+        },
+        description="The endpoint receives a post request from authenticated user to refresh token ",
+    )
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
@@ -181,6 +217,14 @@ class ConovaTokenRefreshView(APIView):
 
 
 class ConovaLogoutView(APIView):
+    @extend_schema(
+        request=TokenObtainPairSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiTypes.OBJECT,
+            status.HTTP_401_UNAUTHORIZED: OpenApiTypes.OBJECT,
+        },
+        description="Logs out an authenticated user and clear access and refresh tokens from cookies.",
+    )
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
         if not refresh_token:
@@ -211,13 +255,11 @@ class ConovaResetPasswordView(APIView):
         try:
             user = User.objects.get(email=email)
             otp = generate_otp(email)
-            send_mail(
+            send_conova_email(
                 subject="Password reset",
-                message=f"Your otp is {otp} and is valid for 10 minutes.",
-                from_email="<Conova <noreply@conova.ng.com>",
-                recipient_list=[
-                    email,
-                ],
+                template_name="emails/test_email.html",
+                to=[email],
+                context={"otp": otp, "user": user.full_name}
             )
         except User.DoesNotExist:
             pass
@@ -241,16 +283,16 @@ class ConovaVerifyOTPView(APIView):
         if verify_otp(email, otp):
             User.objects.get(email=email)
             token = generate_token(email)
-            
-            return Response({"message": "OTP verified successully.", 
-                             "token": token
-                             }, status=status.HTTP_200_OK)
+
+            return Response(
+                {"message": "OTP verified successully.", "token": token},
+                status=status.HTTP_200_OK,
+            )
 
         return Response(
             {"message": "Invalid or expired otp"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-
 
 
 class ConovaPasswordResetConfirmView(APIView):
@@ -306,14 +348,12 @@ class ConovaResendOTPView(APIView):
         email = serializer.data.get("email")
         otp = generate_otp(email)
         try:
-            User.objects.get(email=email)
-            send_mail(
+            user=User.objects.get(email=email)
+            send_conova_email(
                 subject="Verify your account",
-                message=f"Your otp is {otp} and is valid for 10 minutes.",
-                from_email="<Conova <noreply@conova.ng.com>",
-                recipient_list=[
-                    email,
-                ],
+                template_name="emails/test_email.html",
+                to=[email],
+                context={"otp": otp, "user": user.full_name},
             )
         except User.DoesNotExist:
             pass
