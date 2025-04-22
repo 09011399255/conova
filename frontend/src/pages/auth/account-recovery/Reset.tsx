@@ -4,6 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../../components/layouts/AuthLayout";
 import AuthContainer from "../../../components/layouts/AuthContainer";
 import { resetSchema, ResetSchema } from "../../../schemas/resetSchema";
+import { useMutation } from "@tanstack/react-query";
+import {
+  requestPasswordReset,
+  RequestPasswordResetPayload,
+} from "../../../api";
+import { ClientError } from "../../../api/apiFetchWrapper";
+import { toast } from "react-toastify";
 
 export default function Reset() {
   const {
@@ -16,9 +23,30 @@ export default function Reset() {
 
   const navigate = useNavigate();
 
+  const handleRequestPasswordResetMutation = useMutation({
+    mutationFn: (data: RequestPasswordResetPayload) => {
+      return requestPasswordReset(data);
+    },
+    onSuccess: (_, variables) => {
+      const url = `/reset-otp-verification?email=${encodeURIComponent(
+        variables.email
+      )}`;
+
+      navigate(url, { replace: true });
+    },
+    onError: (error: ClientError) => {
+      //Any other thing here on God!
+
+      if (error.status === 0) {
+        toast.error(
+          "Please ensure you have an internet connection and try again"
+        );
+      }
+    },
+  });
+
   const onSubmit = (data: ResetSchema) => {
-    console.log(data);
-    navigate("/reset-otp-verification");
+    handleRequestPasswordResetMutation.mutate(data);
   };
 
   return (
@@ -66,9 +94,18 @@ export default function Reset() {
 
             <button
               type="submit"
-              className="w-full bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
+              disabled={handleRequestPasswordResetMutation.isPending}
+              className={`w-full mb-[20px] py-2 rounded-md transition text-white
+    ${
+      handleRequestPasswordResetMutation.isPending
+        ? "bg-[#0f3a52] cursor-not-allowed animate-pulse"
+        : "bg-[#134562] hover:bg-[#083144] cursor-pointer"
+    }
+  `}
             >
-              Send Instructions
+              {handleRequestPasswordResetMutation.isPending
+                ? "Sending Instructions..."
+                : "Send Instructions"}
             </button>
 
             <p className="text-sm text-center ">
