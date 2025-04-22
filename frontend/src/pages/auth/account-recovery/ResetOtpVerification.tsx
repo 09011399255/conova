@@ -1,7 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import AuthLayout from "../../../components/layouts/AuthLayout";
 import AuthContainer from "../../../components/layouts/AuthContainer";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
+import {
+  requestPasswordReset,
+  RequestPasswordResetPayload,
+  verifyOtp,
+  VerifyPayload,
+  VerifyPayloadResponse,
+} from "../../../api";
+import { ClientError } from "../../../api/apiFetchWrapper";
 
 const OTP_LENGTH = 6;
 const defaultOtpValues = new Array(OTP_LENGTH).fill("");
@@ -10,7 +20,21 @@ export default function ResetOtpVerification() {
   const [otpValues, setOtpValues] = useState(defaultOtpValues);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const RESEND_TIMEOUT = 60;
+  const userEmail = searchParams.get("email");
+  if (!userEmail) {
+    toast.error("Something went wrong");
+    return;
+  }
+  const [countdown, setCountdown] = useState(0);
 
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
   const handleChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
     const newOtp = [...otpValues];
@@ -34,17 +58,66 @@ export default function ResetOtpVerification() {
     }
   };
 
+  const handleResendOtpMutation = useMutation({
+    mutationFn: (data: RequestPasswordResetPayload) => {
+      return requestPasswordReset(data);
+    },
+    onSuccess: () => {
+      setCountdown(RESEND_TIMEOUT);
+    },
+    onError: (error: ClientError) => {
+      //Any other thing here on God!
+
+      if (error.status === 0) {
+        toast.error(
+          "Please ensure you have an internet connection and try again"
+        );
+      }
+    },
+  });
+
+  const handleVerifyOtpValidation = useMutation({
+    mutationFn: (data: VerifyPayload) => {
+      return verifyOtp(data);
+    },
+    onSuccess: (data: VerifyPayloadResponse, variables: VerifyPayload) => {
+      const token = data.token;
+
+      const url = `/reset-password?resetToken=${encodeURIComponent(
+        token
+      )}&email=${encodeURIComponent(variables.email)}`;
+
+      navigate(url, { replace: true });
+    },
+    onError: (error: ClientError) => {
+      console.error(error, error.message, error.status);
+      if (error.status === 0) {
+        toast.error("Please ensure you have an internet connection");
+      }
+      //case 2, OTP don go
+      else if (error.status == 400) {
+        toast.error("Invalid or expired OTP");
+      }
+    },
+  });
   const handleSubmitOtp = (e: React.FormEvent) => {
     e.preventDefault();
     const otp = otpValues.join("");
-    console.log("Submitted OTP:", otp);
 
-    // Add actual verification logic here
-
-    // For now, go to reset-password page
-    navigate("/reset-password");
+    const data = {
+      email: userEmail,
+      otp: otp,
+    };
+    handleVerifyOtpValidation.mutate(data);
   };
 
+  const handleResendOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = {
+      email: userEmail,
+    };
+    handleResendOtpMutation.mutate(data);
+  };
   return (
     <AuthLayout>
       <AuthContainer>
@@ -65,10 +138,7 @@ export default function ResetOtpVerification() {
               </h2>
               <p className="text-sm text-[#A5A8B5] mt-1">
                 We sent a 6-digit code to{" "}
-                <span className="text-black font-semibold">
-                  bethanhelen@gmail.com
-                </span>
-                .
+                <span className="text-black font-semibold">{userEmail}</span>.
               </p>
               <p className="text-sm text-[#A5A8B5] mt-1">
                 Enter it below to continue
@@ -95,17 +165,43 @@ export default function ResetOtpVerification() {
 
             <button
               type="submit"
-              className="w-full bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
+              disabled={handleVerifyOtpValidation.isPending}
+              className={`w-full mb-[20px] py-2 rounded-md transition text-white
+    ${
+      handleVerifyOtpValidation.isPending
+        ? "bg-[#0f3a52] cursor-not-allowed animate-pulse"
+        : "bg-[#134562] hover:bg-[#083144] cursor-pointer"
+    }
+  `}
             >
-              Confirm
+              {handleVerifyOtpValidation.isPending
+                ? "Confirming..."
+                : "Confirm"}
             </button>
 
-            <p className="text-sm text-center text-[#A5A8B5]">
+            <div className="text-sm text-center text-[#A5A8B5]">
               Didn't get any code?{" "}
-              <Link to="/register" className="text-[#134562] hover:underline">
-                Resend OTP
-              </Link>
-            </p>
+              {countdown > 0 ? (
+                <span className="text-[#134562] font-bold">
+                  Resend in {countdown}s
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={handleResendOtpMutation.isPending || countdown > 0}
+                  className={`text-[#134562] font-bold hover:underline ${
+                    handleResendOtpMutation.isPending
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  {handleResendOtpMutation.isPending
+                    ? "Sending..."
+                    : "Resend OTP"}
+                </button>
+              )}
+            </div>
 
             <p className="text-sm text-center">
               <Link
