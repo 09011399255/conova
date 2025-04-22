@@ -16,9 +16,9 @@ import UsersRoles from "./pages/dashboard/admin/pages/UsersRoles";
 import Spaces from "./pages/dashboard/admin/pages/Spaces";
 import AddSpacePage from "./pages/dashboard/admin/pages/AddSpacePage";
 import BookRoom from "./pages/dashboard/employee/BookRoom";
-import NotFound from "./components/ui/NotFound"
 import SettingsPage from "./pages/dashboard/employee/Settings";
 import IntegrationsPage from "./pages/dashboard/admin/components/Integration";
+import NotFound from "./routes/NotFound";
 
 const App: React.FC = () => {
   return (

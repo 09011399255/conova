@@ -14,8 +14,7 @@ export default function NotFound() {
         </p>
 
         <Link
-          to={"/"}
-          onClick={() => router.push("/")}
+          to="/"
           className="flex items-center justify-center gap-2 bg-[#134562] text-white px-6 py-3 rounded-md hover:bg-opacity-90 transition-colors duration-200 mx-auto"
         >
           <ArrowLeft className="w-4 h-4" />
