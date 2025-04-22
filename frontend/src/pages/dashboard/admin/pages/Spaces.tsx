@@ -85,12 +85,12 @@ const Spaces = () => {
                                 <img
                                     src="/images/add2.png"
                                     alt="Add"
-                                    className="w-4 h-4 group-hover:hidden" // hide this one on hover
+                                    className="w-4 h-4 group-hover:hidden" 
                                 />
                                 <img
                                     src="/images/add.png"
                                     alt="Add Hover"
-                                    className="w-4 h-4 hidden group-hover:block" // show this one on hover
+                                    className="w-4 h-4 hidden group-hover:block" 
                                 />
                                 Add Floor Plan
                             </button>
