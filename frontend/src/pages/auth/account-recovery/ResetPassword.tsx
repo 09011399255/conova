@@ -1,7 +1,6 @@
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import AuthLayout from "../../../components/layouts/AuthLayout";
 import AuthContainer from "../../../components/layouts/AuthContainer";
 import { useState } from "react";
@@ -12,6 +11,10 @@ import {
 } from "../../../schemas/resetPasswordSchema";
 import { PasswordRules } from "../components/PasswordRules";
 import Modal from "../components/Modal";
+import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
+import { submitPasswordReset } from "../../../api";
+import { ClientError } from "../../../api/apiFetchWrapper";
 
 export default function ResetPassword() {
   const {
@@ -31,14 +34,55 @@ export default function ResetPassword() {
     defaultValue: "",
   });
 
-  const onSubmit = (data: ResetPasswordSchema) => {
-    console.log(data);
-    setIsModalOpen(true);
-  };
-
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  const userEmail = searchParams.get("email");
+  const resetToken = searchParams.get("resetToken");
+  if (!userEmail && !resetToken) {
+    toast.error("Something went wrong");
+    return;
+  }
+
+  const submitResetPasswordMutation = useMutation({
+    mutationFn: (data: ResetPasswordSchema) => {
+      const payload = {
+        email: userEmail!,
+        token: resetToken!,
+        new_password: data.password,
+        re_new_password: data.confirmPassword,
+      };
+
+      return submitPasswordReset(payload);
+    },
+
+    onSuccess: () => {
+      //Just navigate and shikena
+      setIsModalOpen(true);
+      const url = `/login?email=${encodeURIComponent(userEmail!)}`;
+
+      navigate(url, { replace: true });
+    },
+    onError: (error: ClientError) => {
+      if (error.status === 0) {
+        toast.error("Please ensure you have an internet connection");
+      }
+      //case 2, any other other wey wan sup
+      else if (error.status == 400) {
+        toast.error("Invalid or expired OTP");
+      }
+    },
+  });
+
+  const onSubmit = (data: ResetPasswordSchema) => {
+    if (!userEmail || !resetToken) {
+      toast.error("an error occured");
+      return;
+    }
+    submitResetPasswordMutation.mutate(data);
+  };
 
   return (
     <AuthLayout>
@@ -126,9 +170,18 @@ export default function ResetPassword() {
 
             <button
               type="submit"
-              className="w-full bg-[#134562] text-white py-2 rounded-md hover:bg-[#083144] transition"
+              disabled={submitResetPasswordMutation.isPending}
+              className={`w-full mb-[20px] py-2 rounded-md transition text-white
+    ${
+      submitResetPasswordMutation.isPending
+        ? "bg-[#0f3a52] cursor-not-allowed animate-pulse"
+        : "bg-[#134562] hover:bg-[#083144] cursor-pointer"
+    }
+  `}
             >
-              Confirm
+              {submitResetPasswordMutation.isPending
+                ? "Confirming..."
+                : "Confirm"}
             </button>
 
             <p className="text-sm text-center ">

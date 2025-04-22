@@ -1,4 +1,4 @@
-//Just extending this for now, I hav not really tested api behaviour
+
 
 export interface ClientError extends Error {
     status?: number;
@@ -8,24 +8,34 @@ export interface ClientError extends Error {
   /**
    * Simplified API client optimized for React Query
    * @param endpoint API endpoint path
-   * @param options Request options
+   * @param options Request options including method, body, etc.
    * @returns Promise resolving to the API response data
    */
-  export default async function client<T = any>(
+  export default async function apiFetchWrapper<T = any>(
     endpoint: string,
-    { body, customConfig = {} }: { body?: any; customConfig?: RequestInit } = {}
+    { 
+      method = 'GET',
+      body, 
+      customConfig = {} 
+    }: { 
+      method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; 
+      body?: any; 
+      customConfig?: RequestInit 
+    } = {}
   ): Promise<T> {
-      const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
+
+    const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
     const headers = { 'content-type': 'application/json' };
     
     const config: RequestInit = {
-      method: body ? 'POST' : 'GET',
+      method,
       ...customConfig,
       headers: {
         ...headers,
         ...customConfig.headers,
       },
-      body: body ? JSON.stringify(body) : undefined,
+      // Only include body for non-GET requests
+      body: body && method !== 'GET' ? JSON.stringify(body) : undefined,
     };
   
     try {
@@ -33,17 +43,25 @@ export interface ClientError extends Error {
       
       // For successful responses, just return the data directly
       if (response.ok) {
+        // For successful DELETE requests that don't return content
+        if (response.status === 204) {
+          return {} as T;
+        }
         return await response.json();
       }
       
       // Handle error responses
       const errorData = await response.json().catch(() => ({ message: 'Error parsing response' }));
+
+
+
+      console.log(errorData);
       
       const error: ClientError = new Error(errorData.message || `Request failed with status ${response.status}`);
       error.name = `HTTP Error ${response.status}`;
       error.status = response.status;
       error.data = errorData;
-      
+    
       throw error;
     } catch (error) {
       if (error instanceof Error) {
@@ -57,7 +75,7 @@ export interface ClientError extends Error {
           error.message || 'A network error occurred'
         );
         networkError.name = 'NetworkError';
-        networkError.status = 0; // Convention for network errors
+        networkError.status = 0; // Using this on frontend fam
         throw networkError;
       }
       

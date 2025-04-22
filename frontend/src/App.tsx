@@ -19,36 +19,41 @@ import BookRoom from "./pages/dashboard/employee/BookRoom";
 import SettingsPage from "./pages/dashboard/employee/Settings";
 import IntegrationsPage from "./pages/dashboard/admin/components/Integration";
 import NotFound from "./routes/NotFound";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const App: React.FC = () => {
+  //Initialize react query
+  const queryClient = new QueryClient();
   return (
     <BrowserRouter>
       <ToastContainer position="top-right" autoClose={3000} />
-      <Routes>
-        //Implemented a wildcard route just in case
-        <Route path="*" element={<NotFound />} />
-        <Route path="/" element={<Register />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/reset" element={<Reset />} />
-        <Route
-          path="/reset-otp-verification"
-          element={<ResetOtpVerification />}
-        />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/account-type" element={<AccountType />} />
-        <Route path="/dashboard" element={<Admin />}>
-          <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<Overview />} />
-          <Route path="bookings" element={<Bookings />} />
-          <Route path="users-roles" element={<UsersRoles />} />
-          <Route path="spaces" element={<Spaces />} />
-          <Route path="book-room" element={<BookRoom />} />
-          <Route path="spaces/new" element={<AddSpacePage />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="integrations" element={<IntegrationsPage />} />
-        </Route>
-      </Routes>
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          //Implemented a wildcard route just in case
+          <Route path="*" element={<NotFound />} />
+          <Route path="/" element={<Register />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset" element={<Reset />} />
+          <Route
+            path="/reset-otp-verification"
+            element={<ResetOtpVerification />}
+          />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/account-type" element={<AccountType />} />
+          <Route path="/dashboard" element={<Admin />}>
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<Overview />} />
+            <Route path="bookings" element={<Bookings />} />
+            <Route path="users-roles" element={<UsersRoles />} />
+            <Route path="spaces" element={<Spaces />} />
+            <Route path="book-room" element={<BookRoom />} />
+            <Route path="spaces/new" element={<AddSpacePage />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="integrations" element={<IntegrationsPage />} />
+          </Route>
+        </Routes>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 };
