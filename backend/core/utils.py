@@ -9,7 +9,8 @@ from django.conf import settings
 import qrcode.constants
 import requests
 from decouple import config
-from django.template.loader import  render_to_string
+from django.template.loader import render_to_string
+
 
 def generate_otp(email):
     email = email.strip().lower()
@@ -17,10 +18,12 @@ def generate_otp(email):
     cache.set(f"otp_{email}", otp, timeout=60)
     return otp
 
+
 def generate_token(email):
     token = str(uuid.uuid4().hex)
     cache.set(f"token_{email}", token, timeout=60)
     return token
+
 
 def verify_token(email, token):
     stored_token = cache.get(f"token_{email}")
@@ -28,6 +31,7 @@ def verify_token(email, token):
         cache.delete(f"token_{email}")
         return True
     return False
+
 
 def verify_otp(email, typed_otp):
     stored_otp = cache.get(f"otp_{email}")
@@ -43,7 +47,7 @@ def set_cookies(response, key, value):
         key=key,
         value=value,
         httponly=True,
-        samesite="Lax",
+        samesite="None",
         secure=secure_flag,
     )
 
@@ -74,24 +78,26 @@ def rename_file(instance, filename):
     return filename
 
 
-def send_conova_email(to, subject, template_name=None, context=None, text_body=None, from_email=None):
+def send_conova_email(
+    to, subject, template_name=None, context=None, text_body=None, from_email=None
+):
     MAILGUN_API_KEY = config("MAILGUN_API_KEY")
-    MAILGUN_DOMAIN= config("MAILGUN_DOMAIN")
-    DEFAULT_FROM_EMAIL= config("DEFAULT_FROM_EMAIL")
-    
+    MAILGUN_DOMAIN = config("MAILGUN_DOMAIN")
+    DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
+
     if not from_email:
         from_email = DEFAULT_FROM_EMAIL
-        
+
     if isinstance(to, str):
         to = [to]
-        
-    html_body =""
+
+    html_body = ""
     if template_name:
         html_body = render_to_string(template_name, context or {})
-        
+
     if not text_body:
         text_body = "This email requires an HTMl-capable client"
-        
+
     response = requests.post(
         f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
         auth=("api", MAILGUN_API_KEY),
@@ -100,12 +106,12 @@ def send_conova_email(to, subject, template_name=None, context=None, text_body=N
             "to": to,
             "subject": subject,
             "text": text_body,
-            "html": html_body
-        }
+            "html": html_body,
+        },
     )
-    
+
     if response.status_code != 200:
         print("Mailgun failed:", response.text)
         return False
-    
+
     return True
