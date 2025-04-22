@@ -14,12 +14,12 @@ from django.template.loader import  render_to_string
 def generate_otp(email):
     email = email.strip().lower()
     otp = f"{secrets.randbelow(10**6):06d}"
-    cache.set(f"otp_{email}", otp, timeout=600)
+    cache.set(f"otp_{email}", otp, timeout=60)
     return otp
 
 def generate_token(email):
     token = str(uuid.uuid4().hex)
-    cache.set(f"token_{email}", token, timeout=600)
+    cache.set(f"token_{email}", token, timeout=60)
     return token
 
 def verify_token(email, token):

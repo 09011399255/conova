@@ -348,14 +348,12 @@ class ConovaResendOTPView(APIView):
         email = serializer.data.get("email")
         otp = generate_otp(email)
         try:
-            User.objects.get(email=email)
-            send_mail(
+            user=User.objects.get(email=email)
+            send_conova_email(
                 subject="Verify your account",
-                message=f"Your otp is {otp} and is valid for 10 minutes.",
-                from_email="<Conova <noreply@conova.ng.com>",
-                recipient_list=[
-                    email,
-                ],
+                template_name="emails/test_email.html",
+                to=[email],
+                context={"otp": otp, "user": user.full_name},
             )
         except User.DoesNotExist:
             pass
