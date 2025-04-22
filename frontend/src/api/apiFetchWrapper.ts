@@ -34,6 +34,7 @@ export interface ClientError extends Error {
         ...headers,
         ...customConfig.headers,
       },
+      credentials: 'include',
       // Only include body for non-GET requests
       body: body && method !== 'GET' ? JSON.stringify(body) : undefined,
     };

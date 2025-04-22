@@ -84,7 +84,7 @@ export default function Login() {
       }
       if (error.status === 401) {
         if (error.data.detail) {
-          toast.error("Incorrect username or password");
+          toast.error("Incorrect email or password");
         } else {
           toast.error(
             "Your account is not yet activated, please contact support."
