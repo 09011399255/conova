@@ -124,7 +124,7 @@ class WorkspaceSerializer(AvailabilityMixin, serializers.ModelSerializer):
 
 
 class RoomSerializer(AvailabilityMixin, serializers.ModelSerializer):
-    availability = AvailabilityScheduleUpdateSerializer(required=False)
+    availability = AvailabilityScheduleUpdateSerializer()
     availability_field = "room"
 
     class Meta:
@@ -153,10 +153,10 @@ class SeatBookingSerializer(serializers.ModelSerializer):
         fields = ("id", "user", "seat", "status", "created_at", "updated_at")
 
 
-class SeatSerializer(serializers.ModelSerializer):
+class SeatSerializer(AvailabilityMixin, serializers.ModelSerializer):
     SeatBookings = SeatBookingSerializer(many=True, read_only=True)
-    # availability = AvailabilityScheduleUpdateSerializer(required=False)
-    # availability_field = "seat"
+    availability = AvailabilityScheduleUpdateSerializer()
+    availability_field = "seat"
 
     class Meta:
         model = Seat
@@ -169,7 +169,7 @@ class SeatSerializer(serializers.ModelSerializer):
             "y_coordinate",
             "seat_img",
             "SeatBookings",
-            # "availability",
+            "availability",
         )
 
 
@@ -189,55 +189,60 @@ class RoomBookingSerializer(serializers.ModelSerializer):
     )
     start_at = serializers.DateTimeField(required=True)
     ends_at = serializers.DateTimeField(required=True)
+
     class Meta:
         model = RoomBooking
         fields = "__all__"
 
     def validate(self, attrs):
         buffer_time = timedelta(minutes=30)
-        start_at = attrs.get("start_at", getattr(self.instance, 'start_at', None))
+        start_at = attrs.get("start_at", getattr(self.instance, "start_at", None))
         ends_at = attrs.get("ends_at", getattr(self.instance, "ends_at", None))
-        
-        # Add buffer to end time before validating booking overlaps
-        ends_at += buffer_time
-        now = timezone.now()
-        room = attrs.get("room", getattr(self.instance, "room", None))
 
-        if start_at <= now:
-            raise serializers.ValidationError("Start time must be in the future.")
+        if "start_at" in attrs or "ends_at" in attrs:
+            # Add buffer to end time before validating booking overlaps
+            if ends_at:
+                ends_at += buffer_time
+            now = timezone.now()
+            room = attrs.get("room", getattr(self.instance, "room", None))
 
-        if ends_at <= start_at:
-            raise serializers.ValidationError("Ends time must be after start time.")
+            if start_at <= now:
+                raise serializers.ValidationError("Start time must be in the future.")
 
-        booking_day = start_at.strftime("%a").upper()
-        availability = AvailabilitySchedule.objects.filter(
-            room=room, day=booking_day
-        ).first()
+            if ends_at <= start_at:
+                raise serializers.ValidationError("Ends time must be after start time.")
 
-        if not availability or not availability.is_available:
-            raise serializers.ValidationError(
-                "Room is not available for booking on this day."
+            booking_day = start_at.strftime("%a").upper()
+            availability = AvailabilitySchedule.objects.filter(
+                room=room, day=booking_day
+            ).first()
+
+            if not availability or not availability.is_available:
+                raise serializers.ValidationError(
+                    "Room is not available for booking on this day."
+                )
+
+            start_time = start_at.time()
+            end_time = ends_at.time()
+
+            if start_time < availability.start_time or end_time > availability.end_time:
+                raise serializers.ValidationError(
+                    "Booking time must be within the room's available hours."
+                )
+
+            overlapping_booking = RoomBooking.objects.filter(
+                room=room,
+                start_at__lt=ends_at,
+                ends_at__gt=start_at,
             )
 
-        start_time = start_at.time()
-        end_time = ends_at.time()
+            if self.instance:
+                overlapping_booking = overlapping_booking.exclude(id=self.instance.id)
 
-        if start_time < availability.start_time or end_time > availability.end_time:
-            raise serializers.ValidationError(
-                "Booking time must be within the room's available hours."
-            )
-
-        overlapping_booking = RoomBooking.objects.filter(
-            room=room,
-            start_at__lt=ends_at,
-            ends_at__gt=start_at,
-        )
-
-        if self.instance:
-            overlapping_booking = overlapping_booking.exclude(id=self.instance.id)
-
-        if overlapping_booking.exists():
-            raise serializers.ValidationError("The room is already booked for this time slot.")
+            if overlapping_booking.exists():
+                raise serializers.ValidationError(
+                    "The room is already booked for this time slot."
+                )
 
         # validating invited users
         invited_users = attrs.get("invited_users", [])
@@ -270,10 +275,30 @@ class RoomBookingSerializer(serializers.ModelSerializer):
         for user in invited_users:
             RoomBookingInvite.objects.create(
                 booking=booking,
-                user = user,
+                user=user,
             )
 
         return booking
+
+    def update(self, instance, validated_data):
+        invited_users = validated_data.pop("invited_users", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if invited_users is not None:
+            instance.invited_users.clear()
+            RoomBookingInvite.objects.filter(booking=instance).delete()
+
+            instance.invited_users.add(*invited_users)
+            for user in invited_users:
+                RoomBookingInvite.objects.create(
+                    booking=instance,
+                    user=user,
+                )
+
+        return instance
 
 
 class TeamSerializer(serializers.ModelSerializer):

@@ -279,6 +279,22 @@ class RoomBookingViewset(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(booking, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+
+        new_status = serializer.validated_data.get("status")
+        if new_status == "confirmed":
+            accepted_count = RoomBookingInvite.objects.filter(
+                booking=booking,
+                has_accepted=True,
+            ).count()
+
+            if accepted_count < 2:
+                return Response(
+                    {
+                        "error": "At least 2 users must accept the invite before confirming the booking."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+                
         serializer.save()
 
         changes = []
@@ -286,14 +302,17 @@ class RoomBookingViewset(viewsets.ModelViewSet):
         if booking.start_at != original_start or booking.ends_at != original_end:
             changes.append("time")
 
-        if booking.meeting_title != original_title or booking.meeting_description != original_description:
+        if (
+            booking.meeting_title != original_title
+            or booking.meeting_description != original_description
+        ):
             changes.append("details")
 
         if booking.status != original_status:
             changes.append("status")
 
         messages = []
-
+        print(changes)
         if "time" in changes:
             messages.append(
                 f"Meeting details updated:\nTitle: {booking.meeting_title}\n"
@@ -301,24 +320,28 @@ class RoomBookingViewset(viewsets.ModelViewSet):
             )
 
         if "details" in changes:
-           messages.append(f"Meeting details updated\nTitle: {booking.meeting_title}\n"
-            f"Description:{booking.meeting_description}")
+            messages.append(
+                f"Meeting details updated\nTitle: {booking.meeting_title}\n"
+                f"Description:{booking.meeting_description}"
+            )
 
         if "status" in changes:
             if booking.status == "cancelled":
-                messages.append(f"The meeting {booking.meeting_title} has been cancelled.")
+                messages.append(
+                    f"The meeting {booking.meeting_title} has been cancelled."
+                )
             elif booking.status == "confirmed":
                 messages.append(
                     f"The meeting {booking.meeting_title} has been confirmed."
                 )
-        
+        print(messages)
         if messages:
             full_message = "\n\n".join(messages)
             for invitee in booking.invited_users.all():
                 Notification.objects.create(
                     user=invitee,
-                    messages=full_message,
-                    notification_type = "invite",
+                    message=full_message,
+                    notification_type="invite",
                 )
                 send_mail(
                     subject="Meeting update",
@@ -326,8 +349,9 @@ class RoomBookingViewset(viewsets.ModelViewSet):
                     from_email="conova <noreply@conova.live>",
                     recipient_list=[invitee.email],
                 )
-                
+
         return Response(self.get_serializer(booking).data)
+
 
 class RespondToInviteView(APIView):
     """
