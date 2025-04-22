@@ -208,7 +208,7 @@ export default function Register() {
                 <option value="" disabled>
                   Select a role
                 </option>
-                {["learner", "manager", "employee", "admin"].map(
+                {["employee", "manager", "learner", "admin"].map(
                   (option, i) => (
                     <option key={i} className="capitalize">
                       {option}
