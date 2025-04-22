@@ -187,19 +187,27 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-REDIS_URL = config("REDIS_URL")  # No default needed if it's always from env
+REDIS_URL = config("REDIS_URL")
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "SSL": True,
-            "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": ssl.CERT_NONE},
-        },
+if DEBUG:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "SSL": True,
+                "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": ssl.CERT_NONE},
+            },
+        }
+    }
 
 # CELERY_BROKER_URL = REDIS_URL
 # CELERY_RESULT_BACKEND = REDIS_URL
