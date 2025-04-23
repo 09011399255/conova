@@ -30,29 +30,6 @@ const AdminNavbar = () => {
     console.log(seats, isLoading, isError, error);
 
 
-    return (
-        <div className="bg-[#134260] fixed z-[800]  top-0 left-0 right-0    text-white max-940:px-[15px] px-[50px] max-860:px-[10px] py-4  overflow-hidden" >
-            <div className="absolute top-[10px] left-0 w-[150px] h-full z-0 opacity-50" >
-                <img src="/images/vector1.png" alt="Hero" className="w-full  h-full" />
-=======
-  const { isAdmin } = useAdmin();
-  const { data: user } = useUserProfile();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const closeSidebar = () => setIsSidebarOpen(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 860) {
-        setIsSidebarOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
     <div className="bg-[#134260] fixed z-[800]  top-0 left-0 right-0    text-white max-940:px-[15px] px-[50px] max-860:px-[10px] py-4  overflow-hidden">
       <div className="absolute top-[10px] left-0 w-[150px] h-full z-0 opacity-50">
@@ -229,6 +206,7 @@ const AdminNavbar = () => {
           </>
         )}
       </AnimatePresence>
+    </div>
     </div>
   );
 };
