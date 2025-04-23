@@ -6,7 +6,6 @@ import { mockSpaces } from "../../../../data/mockSpaces";
 import { useNavigate } from "react-router-dom";
 import AddNewFloorPlan from "../components/AddNewFloorPlan";
 import { useAdmin } from "../../../../contexts/AdminContext";
-import { useSeats } from "../../../../hooks/useSeats";
 
 const locationOptions = [
     { label: 'Constain Office', value: 'constain' },
@@ -53,7 +52,6 @@ const Spaces = () => {
     const [showChangeSeatModal, setShowChangeSeatModal] = useState(false);
     const [selectedNewSeat, setSelectedNewSeat] = useState<{ seat: string; location: string } | null>(null);
 
-    const { data: seats, isLoading, isError, error } = useSeats();
 
 
     const navigate = useNavigate();
@@ -87,12 +85,12 @@ const Spaces = () => {
                                 <img
                                     src="/images/add2.png"
                                     alt="Add"
-                                    className="w-4 h-4 group-hover:hidden"
+                                    className="w-4 h-4 group-hover:hidden" 
                                 />
                                 <img
                                     src="/images/add.png"
                                     alt="Add Hover"
-                                    className="w-4 h-4 hidden group-hover:block"
+                                    className="w-4 h-4 hidden group-hover:block" 
                                 />
                                 Add Floor Plan
                             </button>
@@ -177,37 +175,7 @@ const Spaces = () => {
 
 
                             </div>
-                            <div className="mt-5">
-                                {isLoading && (
-                                    <p className="text-center text-gray-500">Loading seats...</p>
-                                )}
-
-                                {isError && (
-                                    <p className="text-center text-red-500">Unable to fetch seats.</p>
-                                )}
-
-                                {!isLoading && !isError && seats?.length === 0 && (
-                                    <p className="text-center text-gray-400">No seats available.</p>
-                                )}
-                            </div>
-
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
-
-
-                                {!isLoading && !isError && (seats ?? []).length > 0 && (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        {(seats ?? []).map((seat) => (
-                                            <div
-                                                key={seat.id}
-                                                className="border p-4 rounded shadow hover:shadow-md transition"
-                                            >
-                                                <h3 className="font-semibold text-lg">Seat #{seat.seat_no}</h3>
-                                                <p>Status: {seat.is_available ? "Available ✅" : "Occupied ❌"}</p>
-                                                <p>Floor: {seat.floor}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                                 {mockSpaces.map((space) => (
                                     <div key={space.id} className="bg-white rounded-lg mock mb-[15px]">
                                         <img

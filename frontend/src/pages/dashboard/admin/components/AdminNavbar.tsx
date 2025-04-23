@@ -4,43 +4,15 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAdmin } from "../../../../contexts/AdminContext";
 import { useUserProfile } from "../../../../hooks/useUserProfile";
-import { useSeats } from "../../../../hooks/useSeats";
 
 const AdminNavbar = () => {
-    const { isAdmin } = useAdmin();
-    const { data: user } = useUserProfile();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-    const closeSidebar = () => setIsSidebarOpen(false);
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth > 860) {
-                setIsSidebarOpen(false);
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const { data: seats, isLoading, isError, error } = useSeats();
-
-    console.log(seats, isLoading, isError, error);
-
-
-    return (
-        <div className="bg-[#134260] fixed z-[800]  top-0 left-0 right-0    text-white max-940:px-[15px] px-[50px] max-860:px-[10px] py-4  overflow-hidden" >
-            <div className="absolute top-[10px] left-0 w-[150px] h-full z-0 opacity-50" >
-                <img src="/images/vector1.png" alt="Hero" className="w-full  h-full" />
-=======
-  const { isAdmin } = useAdmin();
+  const { isAdmin, userRole } = useAdmin();
   const { data: user } = useUserProfile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
+  console.log(userRole);
 
   useEffect(() => {
     const handleResize = () => {
@@ -66,6 +38,7 @@ const AdminNavbar = () => {
         <div className="flex flex-col gap-1">
           <img src="/images/logo.png" alt="Logo" className="w-[106.3px]" />
         </div>
+
         <div className="flex items-center">
           <div className="flex-1 mr-[30px] w-[400px] max-860:hidden">
             <div className="flex items-center justify-center gap-2 border border-[#A5A8B5] px-4 py-[14px] rounded-[100px]">
@@ -96,19 +69,13 @@ const AdminNavbar = () => {
             </div>
             <div className="">
               <div className="text-[#A5A8B5] text-[14px] font-[600]">
-                {isAdmin ? "Elizabeth" : "Uthman"}
+                {user?.full_name.split(" ")[0]}
               </div>
-              <div className="text-[#A5A8B5] text-[12px]">
-                {isAdmin ? "Admin" : "Employee"}
+              <div className="text-[#A5A8B5] text-[12px] capitalize">
+                {user?.role}
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-between relative z-[50] max-860:hidden">
-                <div className="text-[32px] font-[700]">
-                    <h1 className="text-white">
-                        Welcome, <span className="text-[#A5A8B5]  ">{isAdmin ? "Elizabeth" : user?.full_name}</span>
-                    </h1>
 
-                </div>
             <div className="w-[20px] h-[20px] ml-[15px] flex items-center justify-center cursor-pointer border border-[#FFFFFF] rounded-full transition duration-200">
               <ChevronDown className=" text-white w-4 mt-[0.9px]" />
             </div>
