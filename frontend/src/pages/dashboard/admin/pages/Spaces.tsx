@@ -261,7 +261,7 @@ const Spaces = () => {
                                                             ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
                                                             : "bg-[#134562] text-white cursor-pointer hover:bg-[#103a4c]"
                                                             } ${bookingSeatId === String(seat.id) ? "animate-pulse" : ""}`}
-                                                    >x
+                                                    >
                                                         {bookingSeatId === String(seat.id)
                                                             ? "Booking..."
                                                             : seat.is_available
