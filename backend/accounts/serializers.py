@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from core.serializers import SeatBookingSerializer, RoomBookingSerializer
 from django.contrib.auth import get_user_model
-from core.models import ConovaUser
+from core.models import Attendance, ConovaUser
 
 
 User = get_user_model()
@@ -62,7 +62,9 @@ class ConovaUserSerializer(serializers.ModelSerializer):
             "email",
             "role",
             "qr_code_image",
+            "last_login",
         )
+        read_only_fiels = ("id", "last_login")
 
 
 class ConovaActivateUserSerializer(serializers.Serializer):
@@ -160,3 +162,8 @@ class ConovaPasswordChangeSerializer(serializers.Serializer):
         user.set_password(self.validated_data["new_password"])
         user.save()
         return user
+
+class AttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attendance
+        fields = ['user', 'is_checkd', 'check_in_time', 'check_out_time', 'date']
