@@ -1,6 +1,11 @@
+from datetime import datetime, timedelta
+import secrets
+import uuid
 from django.urls import reverse
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
+from django.utils import timezone
+from core.models import Attendance, ConovaUser
 from .serializers import (
     ConovaUserSerializer,
     ConovaCreateUserSerializer,
@@ -35,7 +40,7 @@ from django.conf import settings
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.utils.crypto import get_random_string
-from drf_spectacular.utils import extend_schema, OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
 
 User = get_user_model()
@@ -68,7 +73,7 @@ class ConovaUserRegistrationView(APIView):
         request=ConovaCreateUserSerializer,
         responses={
             status.HTTP_201_CREATED: ConovaCreateUserSerializer,
-            status.HTTP_400_BAD_REQUEST: OpenApiTypes.OBJECT,
+            status.HTTP_400_BAD_REQUEST:  OpenApiTypes.OBJECT,
         },
         description="The Enpoints registers a new user and send OTP for verification",
     )
@@ -79,17 +84,13 @@ class ConovaUserRegistrationView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         otp = generate_otp(email)
-        checkin_url = request.build_absolute_uri(
-            reverse("checkin-view", kwargs={"personal_token": user.personal_token})
-        )
-        user.qr_code_image = generate_qr_code(checkin_url)
-        user.save()
+
         send_conova_email(
-                subject="Verify your account",
-                template_name="emails/test_email.html",
-                to=[email],
-                context={"otp": otp, "user": user.full_name}
-            )
+            subject="Verify your account",
+            template_name="emails/test_email.html",
+            to=[email],
+            context={"otp": otp, "user": user.full_name},
+        )
         return Response(
             {
                 "message": "User registered successfully. An OTP has been sent to your email for verification.",
@@ -105,7 +106,7 @@ class ConovaActivateUserView(APIView):
         request=ConovaActivateUserSerializer,
         responses={
             status.HTTP_200_OK: "OTP verified, Accounts activated successfully.",
-            status.HTTP_400_BAD_REQUEST: OpenApiTypes.OBJECT,
+            status.HTTP_400_BAD_REQUEST:  OpenApiTypes.OBJECT,
         },
         description="Activates a user account using an OTP sent to their email.",
     )
@@ -141,8 +142,8 @@ class ConovaLoginView(TokenObtainPairView):
     @extend_schema(
         request=TokenObtainPairSerializer,
         responses={
-            status.HTTP_200_OK: OpenApiTypes.OBJECT,  # Adjust if you have a specific success serializer
-            status.HTTP_401_UNAUTHORIZED: OpenApiTypes.OBJECT,
+            status.HTTP_200_OK:  OpenApiTypes.OBJECT,  # Adjust if you have a specific success serializer
+            status.HTTP_401_UNAUTHORIZED:  OpenApiTypes.OBJECT,
         },
         description="Logs in an existing user and returns access and refresh tokens (set as cookies).",
     )
@@ -188,8 +189,8 @@ class ConovaTokenRefreshView(APIView):
     @extend_schema(
         # request=TokenRefreshSerializer,n
         responses={
-            status.HTTP_200_OK: OpenApiTypes.OBJECT,
-            status.HTTP_401_UNAUTHORIZED: OpenApiTypes.OBJECT,
+            status.HTTP_200_OK:  OpenApiTypes.OBJECT,
+            status.HTTP_401_UNAUTHORIZED:  OpenApiTypes.OBJECT,
         },
         description="The endpoint receives a post request from authenticated user to refresh token ",
     )
@@ -259,7 +260,7 @@ class ConovaResetPasswordView(APIView):
                 subject="Password reset",
                 template_name="emails/test_email.html",
                 to=[email],
-                context={"otp": otp, "user": user.full_name}
+                context={"otp": otp, "user": user.full_name},
             )
         except User.DoesNotExist:
             pass
@@ -348,7 +349,7 @@ class ConovaResendOTPView(APIView):
         email = serializer.data.get("email")
         otp = generate_otp(email)
         try:
-            user=User.objects.get(email=email)
+            user = User.objects.get(email=email)
             send_conova_email(
                 subject="Verify your account",
                 template_name="emails/test_email.html",
@@ -434,10 +435,175 @@ class GoogleLoginView(APIView):
                 {"message": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        print(token)
-        return Response("Sucess")
-
 
 class ConovaCheckInView(APIView):
-    def post(self, request):
-        pass
+    """
+    Get check-in information for a user via their temporary QR token.
+
+    Args:
+        request (HttpRequest): The incoming request object.
+        personal_token (str): Temporary token provided by user via QR.
+
+    Returns:
+        Response: User data with check-in status or error message if token is invalid or expired.
+    """
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="personal_token",
+                required=True,
+                type=str,
+                location=OpenApiParameter.PATH,
+            ),
+        ],
+        responses={200: "User check-in data", 404: "Invalid or expired QR code"},
+        description="Retrieve user check-in status using QR token.",
+        tags=["Check-In"],
+    )
+    def get(self, request, personal_token):
+        user = ConovaUser.objects.filter(temporary_token=personal_token).first()
+        if user.token_expiry < timezone.now():
+            return Response(
+                {"message": "Invalid or expired QR code."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        attendance = Attendance.objects.filter(
+            user=user, date=datetime.today().date()
+        ).first()
+
+        if user.avatar and hasattr(user.avatar, "url"):
+            avatar = request.build_absolute_uri(user.avatar.url)
+        else:
+            avatar = None
+
+        if not attendance:
+            return Response(
+                {
+                    "user": {
+                        "profile_picture": avatar,
+                        "full_name": user.full_name,
+                        "email": user.email,
+                    },
+                    "is_checked": False,
+                }
+            )
+
+        if attendance.is_checked:
+            return Response(
+                {
+                    "user": {
+                        "profile_picture": avatar,
+                        "full_name": user.full_name,
+                        "email": user.email,
+                    },
+                    "is_checked": True,
+                }
+            )
+
+        return Response(
+            {
+                "user": {
+                    "profile_picture": avatar,
+                    "full_name": user.full_name,
+                    "email": user.email,
+                },
+                "is_checked": False,
+            }
+        )
+
+    """
+    Handles user check-in or check-out for the workspace using their temporary QR token.
+
+    Args:
+        request (HttpRequest): The incoming request object.
+        personal_token (str): Temporary token used to identify the user.
+
+    Returns:
+        Response: Message indicating success of check-in or check-out.
+    """
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="personal_token",
+                required=True,
+                type=str,
+                location=OpenApiParameter.PATH,
+            ),
+        ],
+        responses={
+            200: "Checked in or out successfully",
+            404: "Invalid or expired QR code",
+        },
+        description="Check in or out of the workspace using QR token.",
+        tags=["Check-In"],
+    )
+    def post(self, request, personal_token):
+        user = ConovaUser.objects.filter(temporary_token=personal_token).first()
+
+        if user.token_expiry < timezone.now():
+            return Response(
+                {"message": "Invalid or expired QR code."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        attendance, created = Attendance.objects.get_or_create(
+            user=user, date=datetime.today().date()
+        )
+
+        if created:
+            attendance.check_in_time = timezone.now()
+            attendance.is_checked = True
+            attendance.save()
+            return Response(
+                {"message": "Checked in successfully"}, status=status.HTTP_200_OK
+            )
+
+        if attendance.is_checked:
+            attendance.check_out_time = timezone.now()
+            attendance.is_checked = False
+            attendance.save()
+            return Response(
+                {"message": "Checked out successfully."}, status=status.HTTP_200_OK
+            )
+
+        attendance.check_in_time = timezone.now()
+        attendance.is_checked = True
+        attendance.save()
+        return Response({"message": "Checked in successfully"}, status=status.HTTP_200_OK)
+
+
+class GenerateQRCodeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if user.temporary_token and user.token_expiry > timezone.now():
+            checkin_url = request.build_absolute_uri(
+                reverse("checkin-view", kwargs={"personal_token": user.temporary_token})
+            )
+            user.qr_code_image.save("qr_code.png", generate_qr_code(checkin_url))
+
+        else:
+            if user.token_expiry and user.token_expiry < timezone.now():
+                user.temporary_token = None
+                user.token_expiry = None
+                user.qr_code_image = None
+                
+            user.temporary_token = uuid.uuid4()
+            user.token_expiry = timezone.now() + timedelta(minutes=15)
+            user.save()
+            
+            checkin_url = request.build_absolute_uri(
+                reverse("checkin-view", kwargs={"personal_token": user.temporary_token})
+            )
+            user.qr_code_image.save("qr_code.png", generate_qr_code(checkin_url))
+
+        return Response(
+            {
+                "qr_url": request.build_absolute_uri(user.qr_code_image.url),
+                "expires_at": user.token_expiry,
+            }
+        )

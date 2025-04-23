@@ -312,7 +312,6 @@ class RoomBookingViewset(viewsets.ModelViewSet):
             changes.append("status")
 
         messages = []
-        print(changes)
         if "time" in changes:
             messages.append(
                 f"Meeting details updated:\nTitle: {booking.meeting_title}\n"
@@ -334,7 +333,6 @@ class RoomBookingViewset(viewsets.ModelViewSet):
                 messages.append(
                     f"The meeting {booking.meeting_title} has been confirmed."
                 )
-        print(messages)
         if messages:
             full_message = "\n\n".join(messages)
             for invitee in booking.invited_users.all():
@@ -395,3 +393,8 @@ class RespondToInviteView(APIView):
             {"message": f"Invite successfully {response}ed."},
             status=status.HTTP_200_OK,
         )
+
+
+class RoomCheckIn(APIView):
+    def post(self, request, room_id):
+        pass
