@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import AdminModal from "../components/AdminModal";
 import CustomDropdown from "../components/CustomDropdown";
-import { mockSpaces } from "../../../../data/mockSpaces";
 import { useNavigate } from "react-router-dom";
 import AddNewFloorPlan from "../components/AddNewFloorPlan";
-import { useAdmin } from "../../../../contexts/AdminContext";
 import { useSeats } from "../../../../hooks/useSeats";
+import { useAdmin } from "../../../../contexts/AdminContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { bookSeat } from "../../../../api/services/seatService";
 
 const locationOptions = [
     { label: 'Constain Office', value: 'constain' },
@@ -38,7 +40,8 @@ const roomCapacityOptions = [
 
 
 const Spaces = () => {
-    const { isAdmin } = useAdmin()
+    const { isAdmin } = useAdmin();
+    const { data: seats, isLoading, isError} = useSeats();
 
     const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState<"image View" | "floor Plan" | "list View">(() => {
@@ -53,10 +56,42 @@ const Spaces = () => {
     const [showChangeSeatModal, setShowChangeSeatModal] = useState(false);
     const [selectedNewSeat, setSelectedNewSeat] = useState<{ seat: string; location: string } | null>(null);
 
-    const { data: seats, isLoading, isError, error } = useSeats();
+    const queryClient = useQueryClient();
+
+    const [bookingSeatId, setBookingSeatId] = useState<string | null>(null);
+
+    const { mutate: mutateBookSeat } = useMutation({
+        mutationFn: (seatId: string) => bookSeat(seatId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["seats"] });
+            toast.success("Seat booked successfully");
+            setShowSuccessModal(true);
+            setBookingSeatId(null); // clear booking state
+        },
+        onError: () => {
+            toast.error("Something went wrong booking the seat");
+            setBookingSeatId(null); // clear booking state
+        },
+    });
 
 
     const navigate = useNavigate();
+
+    // Load on mount
+    useEffect(() => {
+        const storedDetails = localStorage.getItem("bookedSeatDetails");
+        if (storedDetails) {
+            setBookedSeatDetails(JSON.parse(storedDetails));
+        }
+    }, []);
+
+    // Save on change
+    useEffect(() => {
+        if (bookedSeatDetails) {
+            localStorage.setItem("bookedSeatDetails", JSON.stringify(bookedSeatDetails));
+        }
+    }, [bookedSeatDetails]);
+
 
     return (
         <div className="max-940:px-[15px] px-[50px] max-860:px-[10px] font-manrope">
@@ -177,90 +212,78 @@ const Spaces = () => {
 
 
                             </div>
-                            <div className="mt-5">
-                                {isLoading && (
-                                    <p className="text-center text-gray-500">Loading seats...</p>
-                                )}
+                            {isLoading && (
+                                <p className="text-center mt-[20px] text-gray-500">Loading seats...</p>
+                            )}
 
-                                {isError && (
-                                    <p className="text-center text-red-500">Unable to fetch seats.</p>
-                                )}
+                            {isError && (
+                                <p className="text-center mt-[20px] text-red-500">Unable to fetch seats.</p>
+                            )}
 
-                                {!isLoading && !isError && seats?.length === 0 && (
-                                    <p className="text-center text-gray-400">No seats available.</p>
-                                )}
-                            </div>
+                            {!isLoading && !isError && seats?.length === 0 && (
+                                <p className="text-center mt-[20px] text-gray-400">No seats available.</p>
+                            )}
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
+                            {!isLoading && !isError && (seats ?? []).length > 0 && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
+                                    {seats?.map((seat) => (
+                                        <div key={seat.id} className="bg-white rounded-lg mock mb-[15px]">
+                                            <img
+                                                src={seat.seat_img}
+                                                alt={String(seat.floor)}
+                                                className="rounded-t-[8px] mb-2 w-full  object-cover"
+                                            />
 
+                                            <div className=" p-3">
+                                                <div className="flex items-center gap-2 text-sm mb-2  ">
+                                                    <p className="font-[400] text-[14px] text-[#1A1A1A]">Seat {seat.seat_no}</p>
+                                                    <div className="flex items-center gap-[2px]">
+                                                        <img src="/images/location.png" className="w-4 h-4" />
+                                                        <span className="text-[#000000] font-[500] text-[12px]">Floor {seat.floor}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <button
+                                                        disabled={!seat.is_available || bookingSeatId === String(seat.id)}
+                                                        onClick={() => {
+                                                            if (seat.is_available) {
+                                                                setBookingSeatId(String(seat.id));
+                                                                if (bookedSeatDetails) {
+                                                                    setSelectedNewSeat({ seat: seat.seat_no, location: seat.seat_no || "Unknown Location" });
+                                                                    setShowChangeSeatModal(true);
+                                                                } else {
+                                                                    setBookedSeatDetails({ seat: seat.seat_no, location: seat.seat_no || "Unknown Location" });
+                                                                    mutateBookSeat(String(seat.id));
+                                                                }
+                                                            }
+                                                        }}
+                                                        className={`w-full text-sm  px-4 py-2 rounded flex justify-center items-center gap-2 transition ${!seat.is_available
+                                                            ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
+                                                            : "bg-[#134562] text-white cursor-pointer hover:bg-[#103a4c]"
+                                                            } ${bookingSeatId === String(seat.id) ? "animate-pulse" : ""}`}
+                                                    >
+                                                        {bookingSeatId === String(seat.id)
+                                                            ? "Booking..."
+                                                            : seat.is_available
+                                                                ? "Book Seat"
+                                                                : "Booked"}
+                                                    </button>
 
-                                {!isLoading && !isError && (seats ?? []).length > 0 && (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        {(seats ?? []).map((seat) => (
-                                            <div
-                                                key={seat.id}
-                                                className="border p-4 rounded shadow hover:shadow-md transition"
-                                            >
-                                                <h3 className="font-semibold text-lg">Seat #{seat.seat_no}</h3>
-                                                <p>Status: {seat.is_available ? "Available ✅" : "Occupied ❌"}</p>
-                                                <p>Floor: {seat.floor}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                {mockSpaces.map((space) => (
-                                    <div key={space.id} className="bg-white rounded-lg mock mb-[15px]">
-                                        <img
-                                            src={space.image}
-                                            alt={space.name}
-                                            className="rounded-t-[8px] mb-2 w-full  object-cover"
-                                        />
-                                        <div className=" p-3">
-                                            <div className="flex items-center gap-2 text-sm mb-2  ">
-                                                <p className="font-[400] text-[14px] text-[#1A1A1A]">{space.name}</p>
-                                                <div className="flex items-center gap-[2px]">
-                                                    <img src="/images/location.png" className="w-4 h-4" />
-                                                    <span className="text-[#000000] font-[500] text-[12px]">Floor {space.floor}</span>
+                                                    {
+                                                        isAdmin && (
+                                                            <button className="  border border-[#134562] text-sm  px-4 py-[9px] rounded flex justify-center items-center gap-2 transition">
+                                                                <img src="/images/edit.png" alt="View" className="w-4 h-4" />
+                                                            </button>
+                                                        )
+                                                    }
+
                                                 </div>
                                             </div>
-
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <button
-                                                    disabled={space.status === "booked"}
-                                                    onClick={() => {
-                                                        if (space.status !== "booked") {
-                                                            if (bookedSeatDetails) {
-                                                                setSelectedNewSeat({ seat: space.name, location: space.location || "Unknown Location" });
-                                                                setShowChangeSeatModal(true);
-                                                            } else {
-                                                                setBookedSeatDetails({ seat: space.name, location: space.location || "Unknown Location" });
-                                                                setShowSuccessModal(true);
-                                                            }
-                                                        }
-                                                    }}
-
-                                                    className={`w-full text-sm  px-4 py-2 rounded flex justify-center items-center gap-2 transition ${space.status === "booked"
-                                                        ? "bg-[#DCDFE3] text-[#A5A8B5] cursor-not-allowed"
-                                                        : "bg-[#134562] text-white hover:bg-[#103a4c]"
-                                                        }`}
-                                                >
-                                                    {space.status === "booked" ? "Booked" : "Book Seat"}
-                                                </button>
-                                                {
-                                                    isAdmin && (
-                                                        <button className="  border border-[#134562] text-sm  px-4 py-[9px] rounded flex justify-center items-center gap-2 transition">
-                                                            <img src="/images/edit.png" alt="View" className="w-4 h-4" />
-                                                        </button>
-                                                    )
-                                                }
-
-                                            </div>
-
                                         </div>
+                                    ))}
+                                </div>
+                            )}
 
-                                    </div>
-                                ))}
-                            </div>
                         </div>
 
 
@@ -292,7 +315,7 @@ const Spaces = () => {
                         <div className="text-center text-gray-400 text-sm mt-10">List View coming soon...</div>
                     )}
                 </motion.div>
-            </div>
+            </div >
 
 
 
@@ -314,23 +337,18 @@ const Spaces = () => {
                     </div>
                     <h3 className="text-[14px] font-[400] mb-2">Seat Booked!</h3>
                     <p className="text-[14px] font-[400] text-[#A5A8B5]">
-                        You've successfully booked {bookedSeatDetails?.seat} at {bookedSeatDetails?.location}
+                        You've successfully booked Seat {bookedSeatDetails?.seat} at {bookedSeatDetails?.location}
                     </p>
-                    <button
-                        onClick={() => {
-                            setShowSuccessModal(false)
-                        }}
-                        className="mt-[36px] w-full bg-[#10384F] text-white px-6 py-2 font-[500] rounded-[4px] hover:bg-[#103a4c] text-[14px]"
-                    >
-                        Change seat
-                    </button>
                 </div>
             </AdminModal >
 
-            <AdminModal show={showChangeSeatModal} onClose={() => setShowChangeSeatModal(false)} maxWidth="max-w-[500px]">
+            <AdminModal show={showChangeSeatModal} onClose={() => {
+                setShowChangeSeatModal(false);
+                setBookingSeatId(null);
+            }} maxWidth="max-w-[500px]">
                 <div className="text-center px-1 py-2">
                     <div className="flex justify-end items-start mb-[20px]">
-                        <button type="button" onClick={() => setShowChangeSeatModal(false)} className="text-gray-500 hover:text-gray-700">
+                        <button type="button" onClick={() => { setShowChangeSeatModal(false); setBookingSeatId(null); }} className="text-gray-500 hover:text-gray-700">
                             <img src="/images/close.png" alt="Close" className="w-5 h-5" />
                         </button>
                     </div>
@@ -347,13 +365,37 @@ const Spaces = () => {
 
                     <button
                         onClick={() => {
-                            setBookedSeatDetails(selectedNewSeat);
-                            setShowChangeSeatModal(false);
+                            if (selectedNewSeat) {
+                                setBookingSeatId(selectedNewSeat.seat); 
+                                mutateBookSeat(String(selectedNewSeat.seat), {
+                                    onSuccess: () => {
+                                        toast.success("Seat changed successfully");
+                                        setBookedSeatDetails(selectedNewSeat);
+                                        setShowChangeSeatModal(false);
+                                        setBookingSeatId(null);
+                                    },
+                                    onError: () => {
+                                        toast.error("Failed to change seat. Please try again.");
+                                        setShowChangeSeatModal(false);
+                                        setBookingSeatId(null);
+                                    },
+                                });
+                            }
                         }}
-                        className="w-full bg-[#134562] hover:bg-[#103a4c] text-white px-6 py-2 font-medium rounded-[4px] text-[14px]"
+                        disabled={bookingSeatId === selectedNewSeat?.seat}
+                        className={`w-full px-6 py-2 font-medium rounded-[4px] text-[14px] text-white transition 
+        ${bookingSeatId === selectedNewSeat?.seat ? "bg-gray-400 cursor-not-allowed" : "bg-[#134562] hover:bg-[#103a4c]"}`}
                     >
-                        Change seat
+                        {bookingSeatId === selectedNewSeat?.seat ? (
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="loader border-white w-4 h-4 rounded-full border-t-transparent border-2 animate-spin"></span>
+                                Changing...
+                            </div>
+                        ) : (
+                            "Change seat"
+                        )}
                     </button>
+
                 </div>
             </AdminModal>
 
