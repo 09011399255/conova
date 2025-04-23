@@ -105,7 +105,7 @@ const AdminNavbar = () => {
           <h1 className="text-white">
             Welcome,{" "}
             <span className="text-[#A5A8B5]">
-              {isAdmin ? "Elizabeth" : user?.full_name.split(" ")[0]}
+              {isAdmin ? "Elizabeth" : user?.full_name}
             </span>
           </h1>
         </div>
