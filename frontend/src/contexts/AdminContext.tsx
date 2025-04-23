@@ -12,7 +12,7 @@ interface AdminContextType {
   error: Error | null;
   user: UserProfileResponse | null;
   hasRole: (requiredRole: string) => boolean;
-  userRole : string | undefined;
+  userRole: string | undefined;
 }
 
 //Create context with default values, using | null cos of on mount
@@ -43,6 +43,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   //Atimes I wished tis thing has the onError that useMutation has
 
   const navigate = useNavigate();
+
 
   useEffect(() => {
     if (!error) return;
@@ -80,6 +81,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     // Check for a single role
     return user.role === requiredRole;
   };
+
 
   const contextValue: AdminContextType = {
     isAdmin: isAdmin || false,

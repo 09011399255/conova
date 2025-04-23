@@ -1,13 +1,47 @@
 import { useState } from "react";
 import AdminModal from "../admin/components/AdminModal";
 import QRModalContent from "./QrModal";
+import { useQuery } from "@tanstack/react-query";
+import { getQRCode } from "../../../api";
+import { format } from "date-fns";
 
 const Activities = () => {
     const [showQRModal, setShowQRModal] = useState(false);
+
+    const { data, isLoading, isError, refetch } = useQuery({
+        queryKey: ["qr-code"],
+        queryFn: getQRCode,
+        enabled: false, // do not fetch automatically
+    });
+
+    const handleShowQR = async () => {
+        setShowQRModal(true);
+        await refetch();
+        console.log("QR Code data:", data);
+    };
+
+    const formatDayWithSuffix = (date: Date) => {
+        const day = date.getDate();
+        const suffix =
+            day % 10 === 1 && day !== 11
+                ? "st"
+                : day % 10 === 2 && day !== 12
+                    ? "nd"
+                    : day % 10 === 3 && day !== 13
+                        ? "rd"
+                        : "th";
+
+        const weekday = format(date, "EEEE");
+        const month = format(date, "MMM");
+
+        return `${weekday} ${day}${suffix} ${month}`;
+    };
     return (
         <>
             <AdminModal show={showQRModal} onClose={() => setShowQRModal(false)} maxWidth="max-w-[400px]">
-                <QRModalContent onClose={() => setShowQRModal(false)} />
+                <QRModalContent onClose={() => setShowQRModal(false)} qrCodeUrl={data?.qr_url}
+                    isLoading={isLoading}
+                    isError={isError} />
             </AdminModal>
             <div
 
@@ -42,7 +76,7 @@ const Activities = () => {
                 <div className="flex flex-col gap-[10px]">
                     <div className="flex items-center gap-2">
                         <img src="/images/cal2.png" alt="icon" className="w-5 h-5" />
-                        <span className="text-[14px] font-[600] text-black">Monday 25th oct </span>
+                        <span className="text-[14px] font-[600] text-black">{formatDayWithSuffix(new Date())}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <img src="/images/clock2.png" alt="icon" className="w-5 h-5" />
@@ -50,7 +84,7 @@ const Activities = () => {
                     </div>
                 </div>
 
-                <button className="bg-[#134562] mt-[26px] text-white rounded-[4px] text-center w-full px-[24px] py-[12px] text-[14px] font-[500]" onClick={() => setShowQRModal(true)}
+                <button className="bg-[#134562] mt-[26px] text-white rounded-[4px] text-center w-full px-[24px] py-[12px] text-[14px] font-[500]" onClick={handleShowQR}
                 >Show QR Code</button>
             </div>
             <div

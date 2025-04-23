@@ -1,12 +1,12 @@
 from django.urls import path
 from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 from .views import (
+    NotificationViewset,
     RespondToInviteView,
     RoomBookingViewset,
     RoomViewset,
     SeatBookingView,
     SeatViewset,
-    TeamViewset,
     WorkspaceViewSet,
     FloorViewset,
 )
@@ -17,7 +17,7 @@ router.register(r"workspaces", WorkspaceViewSet, basename="workspace")
 router.register(r"rooms", RoomViewset, basename="rooms")
 router.register(r"seats", SeatViewset, basename="seats")
 router.register(r"seat-bookings", SeatBookingView, basename="seat-bookings")
-router.register(r"teams", TeamViewset, basename="teams")
+router.register(r"notifications", NotificationViewset, basename="notifications")
 router.register(r"room-bookings", RoomBookingViewset, basename="room-bookings")
 # Nested routers
 workspace_router = NestedDefaultRouter(router, r"workspaces", lookup="workspace")

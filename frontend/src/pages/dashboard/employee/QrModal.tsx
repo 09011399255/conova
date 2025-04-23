@@ -1,5 +1,14 @@
-// QRModalContent.tsx
-const QRModalContent = ({ onClose }: { onClose: () => void }) => {
+const QRModalContent = ({
+    onClose,
+    qrCodeUrl,
+    isLoading,
+    isError,
+}: {
+    onClose: () => void;
+    qrCodeUrl?: string;
+    isLoading: boolean;
+    isError: boolean;
+}) => {
     return (
         <div className="text-center px-3 py-2">
             <div className="flex justify-end items-start">
@@ -11,11 +20,17 @@ const QRModalContent = ({ onClose }: { onClose: () => void }) => {
             <p className="text-[#A5A8B5] text-[16px] font-[400] mb-[26px]">
                 Here is your unique QR code to check in at workspaces and verify your presence easily.
             </p>
-            <img
-                src="/images/qr.png"
-                alt="QR Code"
-                className="mx-auto w-[160px] h-[160px]"
-            />
+
+            {isLoading && <p className="text-sm text-gray-400">Loading QR Code...</p>}
+            {isError && <p className="text-sm text-red-500">Failed to load QR Code.</p>}
+
+            {!isLoading && !isError && qrCodeUrl && (
+                <img
+                    src={qrCodeUrl}
+                    alt="QR Code"
+                    className="mx-auto w-[160px] h-[160px]"
+                />
+            )}
         </div>
     );
 };

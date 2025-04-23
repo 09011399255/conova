@@ -36,6 +36,7 @@ export const submitPasswordReset = (submitPasswordResetData: SubmitPasswordReset
 export const getUserProfile = () =>
     authFetch<UserProfileResponse>('/auth/profile/');
 
+export const getQRCode = () => apiFetchWrapper<{ qr_url: string }>('/generate-qr/');
 
 
 

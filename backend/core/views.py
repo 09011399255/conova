@@ -1,8 +1,8 @@
 from .serializers import (
     FloorSerializer,
+    Notificationerializer,
     RoomSerializer,
     SeatSerializer,
-    TeamSerializer,
     WorkspaceSerializer,
     SeatBookingSerializer,
     RoomBookingSerializer,
@@ -31,7 +31,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
 
-class TeamViewset(viewsets.ModelViewSet):
+class NotificationViewset(viewsets.ModelViewSet):
     """
     API endpoint that allows teams to be viewed or edited.
 
@@ -40,7 +40,7 @@ class TeamViewset(viewsets.ModelViewSet):
     - **Retrieve**: Gets a team and its schedule
     """
 
-    serializer_class = TeamSerializer
+    serializer_class = Notificationerializer
     queryset = Team.objects.all()
 
 
@@ -68,7 +68,7 @@ class FloorViewset(viewsets.ModelViewSet):
 
     queryset = Floor.objects.all()
     serializer_class = FloorSerializer
-
+   
     def get_queryset(self):
         return self.queryset.filter(workspace_id=self.kwargs["workspace_pk"])
 
@@ -88,6 +88,7 @@ class RoomViewset(viewsets.ModelViewSet):
 
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
+    # filterset_fields = ["room_type", "floor", "room_capacity", "workspace"]
 
 
 class SeatViewset(viewsets.ModelViewSet):
@@ -137,6 +138,7 @@ class SeatBookingView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = SeatBooking.objects.all()
     serializer_class = SeatBookingSerializer
+    # fielterset_fields = ["status"]
 
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
@@ -148,32 +150,33 @@ class SeatBookingView(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
-        new_seat = validated_data["seat"]
+        requested_seat = validated_data["seat"]
 
-        current_booking = SeatBooking.objects.filter(
-            user=user, created_at__date=today
-        ).first()
-        if current_booking:
-            if new_seat == current_booking.seat:
-                raise ValidationError({"message": "You already booked this seat."})
-            current_booking.seat.is_available = True
-            current_booking.seat.save()
-            current_booking.status = "cancelled"
-            current_booking.save()
-            Notification.objects.create(
-                user=user,
-                message=f"You cancelled seat {current_booking.seat.seat_no}",
-                notification_type="booking",
-            )
-            if user.prefers_email_notification:
-                send_mail(
-                    subject="Booking cancelled",
-                    message=f"Your seat {current_booking.seat.seat_no} has been cancelled.",
-                    from_email="conova <noreply@conova.live>",
-                    recipient_list=[user.email],
-                )
         with transaction.atomic():
-            new_seat = Seat.objects.select_for_update().get(id=new_seat.id)
+            new_seat = Seat.objects.select_for_update().get(id=requested_seat.id)
+
+            current_booking = SeatBooking.objects.select_for_update().filter(
+                user=user, created_at__date=today, status="confirmed"
+            ).first()
+            if current_booking:
+                if new_seat.id == current_booking.seat.id:
+                    raise ValidationError({"message": "You already booked this seat."})
+                current_booking.seat.is_available = True
+                current_booking.seat.save()
+                current_booking.status = "cancelled"
+                current_booking.save()
+                Notification.objects.create(
+                    user=user,
+                    message=f"You cancelled seat {current_booking.seat.seat_no}",
+                    notification_type="booking",
+                )
+                if user.prefers_email_notification:
+                    send_mail(
+                        subject="Booking cancelled",
+                        message=f"Your seat {current_booking.seat.seat_no} has been cancelled.",
+                        from_email="conova <noreply@conova.live>",
+                        recipient_list=[user.email],
+                    )
 
             if not new_seat.is_available:
                 raise ValidationError({"message": "This seat has already been booked."})
@@ -236,6 +239,7 @@ class RoomBookingViewset(viewsets.ModelViewSet):
     queryset = RoomBooking.objects.all()
     serializer_class = RoomBookingSerializer
     permission_classes = [IsAuthenticated]
+    # filterset_fields = ["status"]
 
     def create(self, request, *args, **kwargs):
         user = request.user

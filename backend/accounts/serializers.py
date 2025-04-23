@@ -1,7 +1,12 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from core.serializers import SeatBookingSerializer, RoomBookingSerializer
+from core.serializers import (
+    SeatBookingSerializer,
+    RoomBookingSerializer,
+    Notificationerializer,
+    RoomBookingInviteSerializer
+)
 from django.contrib.auth import get_user_model
 from core.models import Attendance, ConovaUser
 
@@ -53,7 +58,11 @@ class ConovaCreateUserSerializer(serializers.ModelSerializer):
 
 
 class ConovaUserSerializer(serializers.ModelSerializer):
-    
+    notifications = Notificationerializer(many=True, read_only=True)
+    roombookings = RoomBookingSerializer(many=True, read_only=True)
+    seatbookings = SeatBookingSerializer(many=True, read_only=True)
+    invites = RoomBookingInviteSerializer(many=True, read_only=True)
+
     class Meta:
         model = ConovaUser
         fields = (
@@ -61,8 +70,11 @@ class ConovaUserSerializer(serializers.ModelSerializer):
             "full_name",
             "email",
             "role",
-            "qr_code_image",
             "last_login",
+            "notifications",
+            "roombookings",
+            "seatbookings",
+            "invites",
         )
         read_only_fiels = ("id", "last_login")
 
@@ -163,7 +175,8 @@ class ConovaPasswordChangeSerializer(serializers.Serializer):
         user.save()
         return user
 
+
 class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
-        fields = ['user', 'is_checkd', 'check_in_time', 'check_out_time', 'date']
+        fields = ["user", "is_checkd", "check_in_time", "check_out_time", "date"]
