@@ -12,6 +12,7 @@ interface AdminContextType {
   error: Error | null;
   user: UserProfileResponse | null;
   hasRole: (requiredRole: string) => boolean;
+  userRole : string | undefined;
 }
 
 //Create context with default values, using | null cos of on mount
@@ -87,6 +88,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     error,
     user: user || null,
     hasRole,
+    userRole: user?.role,
   };
 
   return (
