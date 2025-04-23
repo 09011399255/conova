@@ -2,8 +2,7 @@ import uuid
 from django.db import models
 from .utils import rename_file
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from cloudinary_storage.storage import MediaCloudinaryStorage
-from phonenumber_field.modelfields import PhoneNumberField
+from cloudinary_storage.storage import MediaCloudinaryStorage 
 from django.db.models import UniqueConstraint
 from django.core.mail import send_mail
 from django.db import transaction
@@ -39,27 +38,22 @@ class ConovaUser(AbstractUser):
     last_name = None
     full_name = models.CharField(max_length=100, help_text="Full name")
     email = models.EmailField(unique=True, help_text="Email address")
-    phone_no = PhoneNumberField(
-        blank=True, null=True, help_text="Contact phone number."
-    )
     role = models.CharField(
         max_length=10,
         choices=ROLES,
+        default="employee"
     )
     qr_code_image = models.ImageField(
         storage=MediaCloudinaryStorage, upload_to=rename_file
     )
+    temporary_token = models.UUIDField(blank=True, null=True)
+    token_expiry = models.DateTimeField(null=True, blank=True)
     avatar = models.ImageField(
         storage=MediaCloudinaryStorage,
         upload_to=rename_file,
         help_text="Profile picture",
         blank=True,
         null=True,
-    )
-    personal_token = models.UUIDField(
-        default=uuid.uuid4,
-        editable=False,
-        unique=True,
     )
     prefers_email_notification = models.BooleanField(default=True)
 
@@ -239,13 +233,13 @@ class AvailabilitySchedule(models.Model):
         blank=True,
         help_text="The room you are adding availability schedule to.",
     )
-    # seat = models.ForeignKey(
-    #     Seat,
-    #     on_delete=models.CASCADE,
-    #     null=True,
-    #     blank=True,
-    #     help_text="The seat you are adding availability schedule to.",
-    # )
+    seat = models.ForeignKey(
+        Seat,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        help_text="The seat you are adding availability schedule to.",
+    )
     day = models.CharField(
         max_length=5,
         choices=DAY_CHOICES,
@@ -411,18 +405,18 @@ class RoomBookingInvite(models.Model):
         Notification.objects.create(
             user=self.booking.created_by,
             message=f"{self.user.full_name} has {action} your invite for {self.booking.meeting_title}",
-            notification_type = "invite",
+            notification_type="invite",
         )
         Notification.objects.create(
-            user = self.user,
+            user=self.user,
             message=f"You have {action} your invitation for {self.booking.meeting_title}",
-            notification_type = "invite",
+            notification_type="invite",
         )
         send_mail(
             subject=f"Invitation {action}",
             message=f"{self.user.full_name} has {action} your invite for {self.booking.meeting_title}",
             from_email="conova <noreply@conova.live>",
-            recipient_list=[self.booking.created_by.email]
+            recipient_list=[self.booking.created_by.email],
         )
         send_mail(
             subject=f"Invitation {action}",
@@ -434,8 +428,25 @@ class RoomBookingInvite(models.Model):
 
 class Attendance(models.Model):
     user = models.ForeignKey(
-        ConovaUser, on_delete=models.CASCADE, related_name="attendance"
+        ConovaUser, on_delete=models.CASCADE, null=True, related_name="attendance"
     )
     is_checked = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    check_in_time = models.DateTimeField(auto_now_add=True)
+    check_out_time = models.DateTimeField(null=True)
+    # location_lat = models.FloatField()
+    # location_long = models.FloatField()
+    date = models.DateField(auto_now_add=True)
+    scanned_by = models.ForeignKey(
+        ConovaUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scanned_attendance",
+    )
+    
+
+    class Meta:
+        constraints = [
+            UniqueConstraint( fields=["user", "date"], name="unique_user_per_date"
+        )
+]

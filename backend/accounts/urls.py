@@ -14,6 +14,7 @@ from .views import (
     ConovaResetPasswordView,
     ConovaUserView,
     ConovaVerifyOTPView,
+    GenerateQRCodeView,
     GoogleLoginView,
     # GoogleLogin,
 )
@@ -58,8 +59,9 @@ urlpatterns = [
     path("auth/profile/", ConovaUserProfileView.as_view(), name="profile"),
     path("auth/google/", GoogleLoginView.as_view(), name="google_login"),
     path(
-        "auth/check-in/<uuid:personal_token>/",
+        "workspace-check-in/<uuid:personal_token>/",
         ConovaCheckInView.as_view(),
         name="checkin-view",
     ),
+    path("generate-qr/", GenerateQRCodeView.as_view(), name="qr-code"),
 ]
