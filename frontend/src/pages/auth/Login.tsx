@@ -13,6 +13,7 @@ import { ClientError } from "../../api/apiFetchWrapper";
 import { LoginResponse, loginUser } from "../../api"; // Import the actual login function
 import { toast } from "react-toastify";
 import Modal from "./components/Modal";
+import { initAuth } from "../../api/authFetch";
 
 export default function Login() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,6 +52,8 @@ export default function Login() {
       return loginUser(data);
     },
     onSuccess: (data: LoginResponse) => {
+      //Calling this to let's get the auth party started
+      initAuth();
       //This also returns the role fam and we could use that to navigate to the dashboard depending, I'll meet with sultan to discuss that
       if (searchParams.has("email")) {
         const newParams = new URLSearchParams(searchParams);
