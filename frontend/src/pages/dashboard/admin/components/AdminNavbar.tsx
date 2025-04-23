@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAdmin } from "../../../../contexts/AdminContext";
 import { useUserProfile } from "../../../../hooks/useUserProfile";
+import { useSeats } from "../../../../hooks/useSeats";
 
 
 const AdminNavbar = () => {
@@ -24,6 +25,10 @@ const AdminNavbar = () => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    const { data: seats, isLoading, isError, error } = useSeats();
+
+    console.log(seats, isLoading, isError, error);
 
 
     return (
@@ -88,7 +93,7 @@ const AdminNavbar = () => {
             <div className="mt-4 flex items-center justify-between relative z-[50] max-860:hidden">
                 <div className="text-[32px] font-[700]">
                     <h1 className="text-white">
-                        Welcome, <span className="text-[#A5A8B5]">{isAdmin ? "Elizabeth" : user?.full_name}</span>
+                        Welcome, <span className="text-[#A5A8B5]  ">{isAdmin ? "Elizabeth" : user?.full_name}</span>
                     </h1>
 
                 </div>
