@@ -4,6 +4,8 @@ import { Eye, EyeOff } from 'lucide-react'
 import { RegisterSchema, registerSchema } from '../../../schemas/registerSchema'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import AdminModal from '../admin/components/AdminModal'
+import EditProfileModal from './EditProfileModal'
 
 export default function SettingsPage() {
     const [notifications, setNotifications] = useState({
@@ -28,6 +30,7 @@ export default function SettingsPage() {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false)
 
 
     return (
@@ -38,7 +41,7 @@ export default function SettingsPage() {
                     <h1 className='text-[18px] mb-[12px] font-[400]'>Profile settings</h1>
                 </div>
 
-                <div className="rounded-[16px] border border-[#DCDFE3] p-4 flex items-center justify-between">
+                <div className="rounded-[16px] border border-[#DCDFE3] p-4 block md:flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <img
                             src="/images/empl.png"
@@ -56,7 +59,7 @@ export default function SettingsPage() {
 
                     </div>
 
-                    <button className=" border border-[#134562] text-[#134562] font-[500] text-[14px] hover:bg-[#134562] px-4 py-2 rounded hover:text-[#fff]">
+                    <button onClick={() => setShowEditModal(true)} className=" border mt-[20px] md:mt-0 border-[#134562] text-[#134562] font-[500] text-[14px] hover:bg-[#134562] px-4 py-2 rounded hover:text-[#fff]">
 
                         Edit Profile
                     </button>
@@ -97,41 +100,46 @@ export default function SettingsPage() {
                             icon: '/images/not.png',
                         },
                     ].map((item) => (
-                        <div key={item.key} className="flex items-center mb-[28px] justify-between">
-                            <div className="flex items-start gap-2">
-                                <div className=' p-[8px] rounded-full bg-[#FAFAFA]'>
-                                    <img
-                                        src={item.icon}
-                                        alt={item.label}
-                                        className="h-6 w-6 "
+                        <>
+                            <div key={item.key} className="flex items-center mb-0 md:mb-[28px] justify-between">
+                                <div className="flex items-center md:items-start gap-2">
+                                    <div className=' p-[8px] rounded-full bg-[#FAFAFA]'>
+                                        <img
+                                            src={item.icon}
+                                            alt={item.label}
+                                            className="h-6 w-6 "
+                                        />
+                                    </div>
+                                    <div>
+                                        <p className="font-[400] text-[16px]">{item.label}</p>
+                                        <p className="text-[#A5A8B5] hidden md:block font-[400] text-[14px] max-w-[400px]">{item.description}</p>
+                                    </div>
+
+                                </div>
+                                <Switch
+                                    checked={notifications[item.key as keyof typeof notifications]}
+                                    onChange={(val) =>
+                                        setNotifications((prev) => ({ ...prev, [item.key]: val }))
+                                    }
+                                    className={`${notifications[item.key as keyof typeof notifications]
+                                        ? "bg-[#134562]"
+                                        : "bg-gray-300"
+                                        } relative inline-flex h-5 w-10 items-center rounded-full transition-colors`}
+                                >
+                                    <span
+                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition 
+      ${notifications[item.key as keyof typeof notifications]
+                                                ? "translate-x-5"
+                                                : "translate-x-1"
+                                            }`}
                                     />
-                                </div>
-                                <div>
-                                    <p className="font-[400] text-[16px]">{item.label}</p>
-                                    <p className="text-[#A5A8B5] font-[400] text-[14px] max-w-[400px]">{item.description}</p>
-                                </div>
+                                </Switch>
+
 
                             </div>
-                            <Switch
-                                checked={notifications[item.key as keyof typeof notifications]}
-                                onChange={(val) =>
-                                    setNotifications((prev) => ({ ...prev, [item.key]: val }))
-                                }
-                                className={`${notifications[item.key as keyof typeof notifications]
-                                    ? "bg-[#134562]"
-                                    : "bg-gray-300"
-                                    } relative inline-flex h-5 w-10 items-center rounded-full transition-colors`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition 
-      ${notifications[item.key as keyof typeof notifications]
-                                            ? "translate-x-5"
-                                            : "translate-x-1"
-                                        }`}
-                                />
-                            </Switch>
+                            <p className="text-[#A5A8B5] mt-[5px] mb-[10px] block md:hidden font-[400] text-[14px] max-w-[400px]">{item.description}</p>
 
-                        </div>
+                        </>
                     ))}
                 </div>
 
@@ -292,6 +300,15 @@ export default function SettingsPage() {
                 </div>
 
             </div >
+
+            <AdminModal show={showEditModal} onClose={() => setShowEditModal(false)} maxWidth="max-w-[500px]">
+                <EditProfileModal
+                    onClose={() => setShowEditModal(false)}
+                    image="/images/empl.png"
+                    fullName="Suarau Uthman"
+                    email="Suarauuthman@gmail.com" />
+            </AdminModal>
+
         </div >
     )
 }
