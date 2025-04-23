@@ -40,8 +40,8 @@ const roomCapacityOptions = [
 
 
 const Spaces = () => {
-    const { isAdmin, userRole } = useAdmin();
-    const { data: seats, isLoading, isError, refetch } = useSeats();
+    const { isAdmin } = useAdmin();
+    const { data: seats, isLoading, isError} = useSeats();
 
     const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState<"image View" | "floor Plan" | "list View">(() => {
