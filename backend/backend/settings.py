@@ -25,14 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-DEBUG = config("DEBUG", default=False, cast=bool) 
+DEBUG = True #config("DEBUG", default=False, cast=bool) 
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if DEBUG:
-    SECRET_KEY = "django-insecure-%r$rd8_5m&)62h=!vy5n(nutk%j3p&f&9)8o5-f_@_y!2c$mkm"
-else:
-    SECRET_KEY = config("SECRET_KEY")
+# if DEBUG:
+#     SECRET_KEY = "django-insecure-%r$rd8_5m&)62h=!vy5n(nutk%j3p&f&9)8o5-f_@_y!2c$mkm"
+# else:
+SECRET_KEY = config("SECRET_KEY")
 
 
 # ALLOWED_HOSTS = []
@@ -104,14 +104,14 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {}
-}
+# DATABASES = {
+#     "default": {}
+# }
 
-if "DATABASE_URL" in os.environ:
-    DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-else:
-    DATABASES = {
+# if "DATABASE_URL" in os.environ:
+#     DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+# else:
+DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
@@ -165,10 +165,10 @@ MEDIAFILES_LOCATION = "media"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
-if DEBUG:
-    STATICFILES_LOCATION = "static"
-else:
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# if DEBUG:
+#     STATICFILES_LOCATION = "static"
+# else:
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -189,15 +189,15 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 REDIS_URL = config("REDIS_URL")
 
-if DEBUG:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": REDIS_URL,
-        }
-    }
-else:
-    CACHES = {
+# if DEBUG:
+#     CACHES = {
+#         "default": {
+#             "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#             "LOCATION": REDIS_URL,
+#         }
+#     }
+# else:
+CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": REDIS_URL,
