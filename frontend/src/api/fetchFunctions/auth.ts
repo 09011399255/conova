@@ -1,11 +1,15 @@
 import apiFetchWrapper from "../apiFetchWrapper";
+import authFetch from "../authFetch";
 import { ActivateUserPayload, ActivateUserResponse, LoginPayload, LoginResponse, RegisterPayload, RegistrationResponse, RequestPasswordResetPayload, ResendOtpPayload, ResendOtpResponse, SubmitPasswordResetPayload, SubmitPasswordResetResponse, UserProfileResponse, VerifyPayload, VerifyPayloadResponse } from "../types/authTypes";
 
 export const registerUser = (userData: RegisterPayload) =>
     apiFetchWrapper<RegistrationResponse>('/auth/register/', { method: 'POST', body: userData });
 
-export const loginUser = (userData: LoginPayload) =>
-    apiFetchWrapper<LoginResponse>('/auth/login/', { method: 'POST', body: userData });
+export const loginUser = (userData:LoginPayload) => 
+    apiFetchWrapper<LoginResponse>('/auth/login/', {
+        method: 'POST', body: userData, customConfig: {
+        credentials: 'include'
+    } });
 
 
 
@@ -30,7 +34,7 @@ export const submitPasswordReset = (submitPasswordResetData: SubmitPasswordReset
 });
 
 export const getUserProfile = () =>
-    apiFetchWrapper<UserProfileResponse>('/auth/profile/');
+    authFetch<UserProfileResponse>('/auth/profile/');
 
 
 
