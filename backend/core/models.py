@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from .utils import rename_file
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from cloudinary_storage.storage import MediaCloudinaryStorage 
+from cloudinary_storage.storage import MediaCloudinaryStorage
 from django.db.models import UniqueConstraint
 from django.core.mail import send_mail
 from django.db import transaction
@@ -38,13 +38,12 @@ class ConovaUser(AbstractUser):
     last_name = None
     full_name = models.CharField(max_length=100, help_text="Full name")
     email = models.EmailField(unique=True, help_text="Email address")
-    role = models.CharField(
-        max_length=10,
-        choices=ROLES,
-        default="employee"
-    )
+    role = models.CharField(max_length=10, choices=ROLES, default="employee")
     qr_code_image = models.ImageField(
-        storage=MediaCloudinaryStorage, upload_to=rename_file
+        storage=MediaCloudinaryStorage,
+        upload_to=rename_file,
+        blank=True,
+        null=True,
     )
     temporary_token = models.UUIDField(blank=True, null=True)
     token_expiry = models.DateTimeField(null=True, blank=True)
@@ -134,6 +133,8 @@ class Room(models.Model):
         storage=MediaCloudinaryStorage,
         upload_to=rename_file,
         help_text="The image of the room.",
+        blank=True,
+        null=True,
     )
     room_capacity = models.IntegerField(
         help_text="The number of people room can accomodate.",
@@ -196,13 +197,13 @@ class Seat(models.Model):
         null=True,
     )
 
-    class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=["floor", "seat_no"],
-                name="unique_seat_per_floor",
-            )
-        ]
+    # class Meta:
+    #     constraints = [
+    #         UniqueConstraint(
+    #             fields=["floor", "seat_no"],
+    #             name="unique_seat_per_floor",
+    #         )
+    #     ]
 
     def __str__(self):
         return self.seat_no
@@ -232,13 +233,6 @@ class AvailabilitySchedule(models.Model):
         null=True,
         blank=True,
         help_text="The room you are adding availability schedule to.",
-    )
-    seat = models.ForeignKey(
-        Seat,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        help_text="The seat you are adding availability schedule to.",
     )
     day = models.CharField(
         max_length=5,
@@ -305,6 +299,7 @@ class SeatBooking(Booking):
         ConovaUser,
         on_delete=models.CASCADE,
         help_text="The user booking a seat",
+        related_name="seatbookings"
     )
     seat = models.ForeignKey(
         Seat,
@@ -335,7 +330,7 @@ class RoomBooking(Booking):
     created_by = models.ForeignKey(
         ConovaUser,
         on_delete=models.CASCADE,
-        related_name="created_roombookings",
+        related_name="roombookings",
         help_text="user making a room booking",
     )
     invited_users = models.ManyToManyField(ConovaUser, related_name="room_invites")
@@ -443,10 +438,8 @@ class Attendance(models.Model):
         blank=True,
         related_name="scanned_attendance",
     )
-    
 
     class Meta:
         constraints = [
-            UniqueConstraint( fields=["user", "date"], name="unique_user_per_date"
-        )
-]
+            UniqueConstraint(fields=["user", "date"], name="unique_user_per_date")
+        ]

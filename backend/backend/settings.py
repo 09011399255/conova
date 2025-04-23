@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-DEBUG = config("DEBUG", default=False, cast=bool) 
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "drf_spectacular",
     "corsheaders",
+    # "django_filters",
     # Local
     "core.apps.CoreConfig",
     "accounts.apps.AccountsConfig",
@@ -104,9 +105,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {}
-}
+DATABASES = {"default": {}}
 
 if "DATABASE_URL" in os.environ:
     DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=True)
@@ -183,6 +182,13 @@ REST_FRAMEWORK = {
         "core.authentication.ConovaAuthentication",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # "DEFAULT_FILTER_BACKENDS": [
+    #     "django_filters.rest_framework.DjangoFilterBackend",
+    #     "rest_framework.filters.SearchFilter",
+    # ],
+    # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    # "PAGE_SIZE": 10,
+    
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -218,8 +224,8 @@ else:
 # }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=15),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKEN": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_BEARER_TYPES": ("Bearer",),

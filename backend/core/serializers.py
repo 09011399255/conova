@@ -3,6 +3,7 @@ from .models import (
     ConovaUser,
     Floor,
     AvailabilitySchedule,
+    Notification,
     Room,
     RoomBooking,
     RoomBookingInvite,
@@ -153,10 +154,9 @@ class SeatBookingSerializer(serializers.ModelSerializer):
         fields = ("id", "user", "seat", "status", "created_at", "updated_at")
 
 
-class SeatSerializer(AvailabilityMixin, serializers.ModelSerializer):
+class SeatSerializer(serializers.ModelSerializer):
     SeatBookings = SeatBookingSerializer(many=True, read_only=True)
-    availability = AvailabilityScheduleUpdateSerializer()
-    availability_field = "seat"
+
 
     class Meta:
         model = Seat
@@ -169,7 +169,6 @@ class SeatSerializer(AvailabilityMixin, serializers.ModelSerializer):
             "y_coordinate",
             "seat_img",
             "SeatBookings",
-            "availability",
         )
 
 
@@ -301,7 +300,13 @@ class RoomBookingSerializer(serializers.ModelSerializer):
         return instance
 
 
-class TeamSerializer(serializers.ModelSerializer):
+class Notificationerializer(serializers.ModelSerializer):
     class Meta:
-        model = Team
+        model = Notification
+        fields = "__all__"
+
+
+class RoomBookingInviteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoomBookingInvite
         fields = "__all__"
