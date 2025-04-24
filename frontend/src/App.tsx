@@ -97,6 +97,7 @@ import BookRoom from "./pages/dashboard/employee/BookRoom";
 import SettingsPage from "./pages/dashboard/employee/Settings";
 import IntegrationsPage from "./pages/dashboard/admin/components/Integration";
 import NotFound from "./routes/NotFound";
+import CheckIn from "./pages/check-in/CheckIn";
 
 const App: React.FC = () => {
   // Initialize react query
@@ -118,6 +119,16 @@ const App: React.FC = () => {
           />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/account-type" element={<AccountType />} />
+          <Route
+            path="/check-in/:personal_token"
+            element={
+              <AdminProvider>
+                <ProtectedRoute>
+                  <CheckIn />
+                </ProtectedRoute>
+              </AdminProvider>
+            }
+          />
 
           <Route
             path="/dashboard"

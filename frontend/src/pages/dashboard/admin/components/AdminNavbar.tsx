@@ -62,9 +62,9 @@ const AdminNavbar = () => {
           <div className="flex items-center gap-2 max-860:hidden ">
             <div className="w-10 h-10">
               <img
-                src={userRole === "admin" ? "/images/avatar.png" : "/images/empl.png"}
+                src={userRole === "admin" ? "/images/avatar.png" : "/images/avatar.jpg"}
                 alt="Elizabeth"
-                className=""
+                className="rounded-full"
               />
             </div>
             <div className="">
