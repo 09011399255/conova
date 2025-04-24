@@ -19,15 +19,15 @@ const navLinks = [
 
 
 export const NavLinks = () => {
-    const { isAdmin } = useAdmin();
+    const { userRole } = useAdmin();
 
     return (
         <div className="mt-[20px] max-860:hidden mb-[31px] flex items-center gap-6 text-[#A5A8B5]">
             {navLinks
                 .filter(link =>
                     link.adminOnly === undefined ||
-                    (link.adminOnly && isAdmin) ||
-                    (link.adminOnly === false && !isAdmin)
+                    (link.adminOnly && userRole === "admin") ||
+                    (link.adminOnly === false && userRole !== "admin")
                 )
                 .map(({ name, path }) => (
                     <NavLink
@@ -48,15 +48,15 @@ export const NavLinks = () => {
 };
 
 export const NavLinksMobile = ({ closeSidebar }: { closeSidebar: () => void }) => {
-    const { isAdmin } = useAdmin();
+    const {  userRole } = useAdmin();
 
     return (
         <div className="flex flex-col gap-[30px] relative justify-center">
             {navLinks
                 .filter(link =>
                     link.adminOnly === undefined ||
-                    (link.adminOnly && isAdmin) ||
-                    (link.adminOnly === false && !isAdmin)
+                    (link.adminOnly && userRole === "admin") ||
+                    (link.adminOnly === false && userRole !== "admin")
                 )
                 .map(({ name, path }) => (
                     <NavLink

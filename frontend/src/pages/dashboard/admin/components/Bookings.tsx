@@ -31,7 +31,7 @@ const statusOptions = [
 
 
 const Bookings = () => {
-    const { isAdmin } = useAdmin();
+    const { userRole} = useAdmin();
     const [selectedSpaceType, setSelectedSpaceType] = useState('');
     const [selectedOffice, setSelectedOffice] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
@@ -41,7 +41,7 @@ const Bookings = () => {
         <>
             <div className="max-940:px-[15px] px-[50px] mb-[30px] max-860:px-[10px] font-manrope">
                 {
-                    isAdmin ? (
+                    userRole === "admin" ? (
                         <>
                             <div>
                                 <h2 className="font-[700] text-[20px] text-black mb-2">Bookings Management</h2>

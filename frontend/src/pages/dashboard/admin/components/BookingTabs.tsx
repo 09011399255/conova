@@ -93,18 +93,18 @@ const bookings = {
 };
 
 const BookingTabs = () => {
-    const [activeTab, setActiveTab] = useState<"confirmed" | "pending">(() => {
+    const [activeTabBooking, setActiveTabBooking] = useState<"confirmed" | "pending">(() => {
         if (typeof window !== "undefined") {
-            const saved = localStorage.getItem("bookingActiveTab");
+            const saved = localStorage.getItem("activeTabBooking");
             if (saved === "confirmed" || saved === "pending") return saved;
         }
         return "confirmed";
     });
 
     useEffect(() => {
-        localStorage.setItem("bookingActiveTab", activeTab);
-    }, [activeTab]);
-    const data = bookings[activeTab];
+        localStorage.setItem("bookingActiveTab", activeTabBooking);
+    }, [activeTabBooking]);
+    const data = bookings[activeTabBooking];
 
     return (
         <div className="">
@@ -112,11 +112,11 @@ const BookingTabs = () => {
 
             <div className="relative flex border-b border-gray-200 mb-4">
                 {["confirmed", "pending"].map((tab) => {
-                    const isActive = activeTab === tab;
+                    const isActive = activeTabBooking === tab;
                     return (
                         <button
                             key={tab}
-                            onClick={() => setActiveTab(tab as "confirmed" | "pending")}
+                            onClick={() => setActiveTabBooking(tab as "confirmed" | "pending")}
                             className={`relative px-4 pb-2 text-sm font-medium transition-colors duration-200 ${isActive
                                 ? "text-[#134562]"
                                 : "text-[#A5A8B5] hover:text-[#134562]"
@@ -139,10 +139,10 @@ const BookingTabs = () => {
 
             {/* Cards */}
             <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, x: activeTab === "confirmed" ? -20 : 20 }}
+                key={activeTabBooking}
+                initial={{ opacity: 0, x: activeTabBooking === "confirmed" ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: activeTab === "confirmed" ? 20 : -20 }}
+                exit={{ opacity: 0, x: activeTabBooking === "confirmed" ? 20 : -20 }}
                 transition={{ duration: 0.3 }}
                 className="max-h-[970px] overflow-y-auto pr-2 custom-scrollbar flex-1"
 

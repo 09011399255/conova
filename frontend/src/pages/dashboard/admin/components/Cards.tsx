@@ -38,13 +38,13 @@ const cards = [
 ];
 
 const Cards: React.FC = () => {
-    const { isAdmin } = useAdmin();
+    const { userRole} = useAdmin();
 
 
     return (
         <div className="grid grid-cols-1  sm:grid-cols-2 max-940:px-[15px] px-[50px] max-860:px-[10px] lg:grid-cols-4 gap-[20px]">
             {
-                isAdmin ?
+                userRole === "admin" ?
                     cards.map((card, idx) => (
                         <div
                             key={idx}

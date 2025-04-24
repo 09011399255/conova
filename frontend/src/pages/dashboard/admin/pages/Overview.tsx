@@ -5,11 +5,11 @@ import NotificationsList from "../../employee/Notifications";
 import ScheduleList from "../../employee/ScheduleList";
 
 const Overview = () => {
-    const { isAdmin } = useAdmin();
+    const { userRole } = useAdmin();
     return (
         <>
             {
-                isAdmin ?
+                userRole === "admin" ?
                     <>
                         <Cards />
                         <BookingSection />
