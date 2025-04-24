@@ -6,7 +6,7 @@ import { useAdmin } from "../../../../contexts/AdminContext";
 import { useUserProfile } from "../../../../hooks/useUserProfile";
 
 const AdminNavbar = () => {
-  const { isAdmin, userRole } = useAdmin();
+  const { userRole } = useAdmin();
   const { data: user } = useUserProfile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -62,7 +62,7 @@ const AdminNavbar = () => {
           <div className="flex items-center gap-2 max-860:hidden ">
             <div className="w-10 h-10">
               <img
-                src={isAdmin ? "/images/avatar.png" : "/images/empl.png"}
+                src={userRole === "admin" ? "/images/avatar.png" : "/images/empl.png"}
                 alt="Elizabeth"
                 className=""
               />
@@ -105,7 +105,7 @@ const AdminNavbar = () => {
           <h1 className="text-white">
             Welcome,{" "}
             <span className="text-[#A5A8B5]">
-              {isAdmin ? "Elizabeth" : user?.full_name}
+              {user?.full_name}
             </span>
           </h1>
         </div>
@@ -170,16 +170,16 @@ const AdminNavbar = () => {
               <div className="flex items-center justify-between gap-3 mb-[30px]">
                 <div className="flex items-center gap-5">
                   <img
-                    src={isAdmin ? "/images/avatar.png" : "/images/empl.png"}
+                    src={userRole === "admin" ? "/images/avatar.png" : "/images/empl.png"}
                     alt="Profile"
                     className="w-10 h-10 rounded-full"
                   />
                   <div>
                     <p className="text-[#A5A8B5] font-semibold">
-                      {isAdmin ? "Elizabeth" : "Uthman"}
+                      {user?.full_name.split(" ")[0]}
                     </p>
                     <p className="text-sm text-[#A5A8B5]">
-                      {isAdmin ? "Admin" : "Employee"}
+                      {userRole === "admin" ? "Admin" : "Employee"}
                     </p>
                   </div>
                 </div>

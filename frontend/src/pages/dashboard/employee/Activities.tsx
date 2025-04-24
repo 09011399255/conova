@@ -4,6 +4,7 @@ import QRModalContent from "./QrModal";
 import { useQuery } from "@tanstack/react-query";
 import { getQRCode } from "../../../api";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const Activities = () => {
     const [showQRModal, setShowQRModal] = useState(false);
@@ -36,6 +37,8 @@ const Activities = () => {
 
         return `${weekday} ${day}${suffix} ${month}`;
     };
+
+    const navigate = useNavigate()
     return (
         <>
             <AdminModal show={showQRModal} onClose={() => setShowQRModal(false)} maxWidth="max-w-[400px]">
@@ -107,7 +110,9 @@ const Activities = () => {
                     </div>
                 </div>
 
-                <button className="border border-[#134562] mt-[26px] text-[#134562] hover:bg-[#134562] hover:text-white rounded-[4px] text-center w-full px-[24px] py-[12px] text-[14px] font-[500]">Change Seat</button>
+                <button className="border border-[#134562] mt-[26px] text-[#134562] hover:bg-[#134562] hover:text-white rounded-[4px] text-center w-full px-[24px] py-[12px] text-[14px] font-[500]" onClick={
+                    () => navigate("/dashboard/spaces")
+                }>Change Seat</button>
             </div>
             <div
 

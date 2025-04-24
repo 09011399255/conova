@@ -48,7 +48,7 @@ const steps = [
 const BookRoom = () => {
     // const { isAdmin } = useAdmin()
 
-    const [activeTab, setActiveTab] = useState<"image View" | "floor Plan" | "list View">(() => {
+    const [activeTabBookRoom, setActiveTabBookRoom] = useState<"image View" | "floor Plan" | "list View">(() => {
         return (localStorage.getItem("spacesActiveTab") as "image View" | "floor Plan" | "list View") || "image View";
     });
     const [selectedLocation, setSelectedLocation] = useState("");
@@ -77,13 +77,13 @@ const BookRoom = () => {
 
             <div className="relative flex border-b border-gray-200 mb-[26px]">
                 {["image View", "floor Plan", "list View"].map((tab) => {
-                    const isActive = activeTab === tab;
+                    const isActive = activeTabBookRoom === tab;
                     return (
                         <button
                             key={tab}
                             onClick={() => {
-                                setActiveTab(tab as "image View" | "floor Plan" | "list View");
-                                localStorage.setItem("spacesActiveTab", tab);
+                                setActiveTabBookRoom(tab as "image View" | "floor Plan" | "list View");
+                                localStorage.setItem("activeTabBookRoom", tab);
                             }}
                             className={`relative  px-4 pb-2 text-sm font-medium transition-colors duration-200 ${isActive
                                 ? "text-[#134562]"
@@ -148,14 +148,14 @@ const BookRoom = () => {
 
             <div className="mt-8">
                 <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, x: activeTab === "image View" ? -20 : 20 }}
+                    key={activeTabBookRoom}
+                    initial={{ opacity: 0, x: activeTabBookRoom === "image View" ? -20 : 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: activeTab === "image View" ? 20 : -20 }}
+                    exit={{ opacity: 0, x: activeTabBookRoom === "image View" ? 20 : -20 }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
 
-                    {activeTab === "image View" && (
+                    {activeTabBookRoom === "image View" && (
                         <div>
                             {step === 1 && (
                                 <>
@@ -248,7 +248,7 @@ const BookRoom = () => {
                     )}
 
 
-                    {activeTab === "floor Plan" && (
+                    {activeTabBookRoom === "floor Plan" && (
                         <div className="mt-4">
                             <div className=" flex flex-col md:flex-row gap-4 items-center w-full ">
 
@@ -270,7 +270,7 @@ const BookRoom = () => {
                         </div>
                     )}
 
-                    {activeTab === "list View" && (
+                    {activeTabBookRoom === "list View" && (
                         <div className="text-center text-gray-400 text-sm mt-10">List View coming soon...</div>
                     )}
                 </motion.div>

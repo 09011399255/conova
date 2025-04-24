@@ -5,11 +5,11 @@ import { bookings } from "../../../data/bookings";
 const BookingsEmployee = () => {
   console.log("kapai");
 
-  const [activeTab, setActiveTab] = useState<
+  const [activeTabEmp, setActiveTabEmp] = useState<
     "Upcoming(3)" | "Cancelled(5)" | "Past(10)"
   >(() => {
     return (
-      (localStorage.getItem("spacesActiveTab") as
+      (localStorage.getItem("activeTabEmp") as
         | "Upcoming(3)"
         | "Cancelled(5)"
         | "Past(10)") || "Upcoming(3)"
@@ -52,15 +52,15 @@ const BookingsEmployee = () => {
 
       <div className="relative flex border-b border-gray-200 mb-[26px]">
         {["Upcoming(3)", "Cancelled(5)", "Past(10)"].map((tab) => {
-          const isActive = activeTab === tab;
+          const isActive = activeTabEmp === tab;
           return (
             <button
               key={tab}
               onClick={() => {
-                setActiveTab(
+                setActiveTabEmp(
                   tab as "Upcoming(3)" | "Cancelled(5)" | "Past(10)"
                 );
-                localStorage.setItem("spacesActiveTab", tab);
+                localStorage.setItem("activeTabEmp", tab);
               }}
               className={`relative  px-4 pb-2 text-sm font-medium transition-colors duration-200 ${
                 isActive
@@ -84,15 +84,15 @@ const BookingsEmployee = () => {
 
       <div className="mt-8">
         <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, x: activeTab === "Upcoming(3)" ? -20 : 20 }}
+          key={activeTabEmp}
+          initial={{ opacity: 0, x: activeTabEmp === "Upcoming(3)" ? -20 : 20 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: activeTab === "Upcoming(3)" ? 20 : -20 }}
+          exit={{ opacity: 0, x: activeTabEmp === "Upcoming(3)" ? 20 : -20 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          {activeTab === "Upcoming(3)" && (
+          {activeTabEmp === "Upcoming(3)" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
-              {bookings[activeTab].map((booking) => {
+              {bookings[activeTabEmp].map((booking) => {
                 const isExpanded = expandedBookingId === booking.id.toString();
 
                 return (
@@ -242,9 +242,9 @@ const BookingsEmployee = () => {
             </div>
           )}
 
-          {activeTab === "Cancelled(5)" && (
+          {activeTabEmp === "Cancelled(5)" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
-              {bookings[activeTab].map((booking) => (
+              {bookings[activeTabEmp].map((booking) => (
                 <div
                   key={booking.id}
                   className="relative px-[16px] py-[24px] border border-[#DCDFE3] rounded-[16px] space-y-2 "
@@ -295,9 +295,9 @@ const BookingsEmployee = () => {
             </div>
           )}
 
-          {activeTab === "Past(10)" && (
+          {activeTabEmp === "Past(10)" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
-              {bookings[activeTab].map((booking) => (
+              {bookings[activeTabEmp].map((booking) => (
                 <div
                   key={booking.id}
                   className="relative border px-[16px] py-[24px] border-[#DCDFE3] rounded-[16px] bg-white"

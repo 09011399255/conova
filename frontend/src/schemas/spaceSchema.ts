@@ -2,8 +2,7 @@ import { z } from "zod";
 
 export const spaceSchema = z.object({
     name: z.string().nonempty("Space name is required"),
-    location: z.string().nonempty("Location is required"),
-    spaceType: z.string().nonempty("Space type is required"),
+    workspace: z.string().nonempty("Workspace is required"),
     capacity: z.string().nonempty("Capacity is required"),
     floor: z.string().nonempty("Floor is required"),
     file: z
