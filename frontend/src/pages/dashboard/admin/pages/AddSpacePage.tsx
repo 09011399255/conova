@@ -1,6 +1,5 @@
 import CustomDropdown from "../components/CustomDropdown";
 import { useNavigate } from "react-router-dom";
-import { SpaceFormData, spaceSchema } from "../../../../schemas/spaceSchema";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import WeeklySchedule from "../components/WeeklySchedule";
@@ -10,6 +9,8 @@ import SpacePreviewContent from "../components/SpacePreviewContent";
 import AdminModal from "../components/AdminModal";
 import SaveNotification from "../components/SaveNotification";
 import { motion } from "framer-motion";
+import AddRoom from "./AddRoom";
+import { seatSchema, SpaceSeatData } from "../../../../schemas/spaceSchema";
 
 
 
@@ -42,19 +43,14 @@ const AddSpacePage = () => {
         clearErrors,
         trigger,
     } = useForm({
-        resolver: zodResolver(spaceSchema),
+        resolver: zodResolver(seatSchema),
         defaultValues: {
-            name: "",
             workspace: "",
-            capacity: "",
             floor: "",
             file: undefined,
         }
     });
 
-
-    const nameValue = watch("name");
-    const capacityValue = watch("capacity");
     const floorValue = watch("floor");
 
     const file = watch("file");
@@ -71,7 +67,7 @@ const AddSpacePage = () => {
     const [toastMessage, setToastMessage] = useState("");
 
 
-    const onSubmit = (data: SpaceFormData) => {
+    const onSubmit = (data: SpaceSeatData) => {
         console.log("Data", data);
         setToastMessage("New space added successfully!");
         setShowToast(true);
@@ -80,7 +76,7 @@ const AddSpacePage = () => {
     };
 
     const [showModal, setShowModal] = useState(false);
-    const [previewData, setPreviewData] = useState<SpaceFormData | null>(null);
+    const [previewData, setPreviewData] = useState<SpaceSeatData | null>(null);
 
     const [schedule, setSchedule] = useState(
         daysOfWeek.map(day => ({
@@ -185,23 +181,6 @@ const AddSpacePage = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    {/* Space Name */}
-                                    {/* <div>
-                                        <label className="block text-sm text-black">Space Name <span className="text-[#EF4444]">*</span></label>
-                                        <input
-                                            type="text"
-                                            {...register("name")}
-                                            className={`mt-[8px] w-full px-4 py-2 border rounded-md bg-transparent outline-none transition-all
-            ${errors.name
-                                                    ? "border-[#EF4444] focus:ring-[#EF4444]"
-                                                    : nameValue
-                                                        ? "border-2 border-[#292524]"
-                                                        : "border-[#D7D3D0] focus:border-[#292524]"
-                                                }`}
-                                            placeholder="Enter space name"
-                                        />
-                                        {errors.name && <p className="text-[#EF4444] text-xs mt-[8px]">{errors.name.message}</p>}
-                                    </div> */}
 
                                     {/* Location Dropdown */}
                                     <div>
@@ -215,25 +194,6 @@ const AddSpacePage = () => {
                                         />
                                         {errors.workspace && <p className="text-xs text-[#EF4444] mt-[8px]">{errors.workspace.message}</p>}
                                     </div>
-
-
-                                    {/* Capacity */}
-                                    {/* <div>
-                                        <label className="block text-sm text-black">Capacity <span className="text-[#EF4444]">*</span></label>
-                                        <input
-                                            type="text"
-                                            {...register("capacity")}
-                                            className={`mt-[8px] w-full px-4 py-2 border rounded-md bg-transparent outline-none transition-all
-            ${errors.capacity
-                                                    ? "border-[#EF4444] focus:ring-[#EF4444]"
-                                                    : capacityValue
-                                                        ? "border-2 border-[#292524]"
-                                                        : "border-[#D7D3D0] focus:border-[#292524]"
-                                                }`}
-                                            placeholder='e.g. "5 seats"'
-                                        />
-                                        {errors.capacity && <p className="text-[#EF4444] text-xs mt-[8px]">{errors.capacity.message}</p>}
-                                    </div> */}
 
                                     {/* Floor */}
                                     <div className="mb-[32px]">
@@ -311,165 +271,8 @@ const AddSpacePage = () => {
 
 
                     {activeTabSpace === "Room" && (
-                        <div className="mt-4">
-
-                            <form onSubmit={handleSubmit(onSubmit)} className="">
-                                <div className="relative flex border-b border-gray-200 mb-[18px] mt-[19px]">
-                                    {["Basic Information"].map((tab) => {
-                                        return (
-                                            <button
-                                                key={tab}
-
-                                                className="relative pb-2 pl-[5px] pr-[20px]  transition-colors duration-200 
-             text-[#000000] font-[700] text-[16px]"
-                                            >
-                                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-
-
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    {/* Space Name */}
-                                    <div>
-                                        <label className="block text-sm text-black">Room Type <span className="text-[#EF4444]">*</span></label>
-                                        <input
-                                            type="text"
-                                            {...register("name")}
-                                            className={`mt-[8px] w-full px-4 py-2 border rounded-md bg-transparent outline-none transition-all
-${errors.name
-                                                    ? "border-[#EF4444] focus:ring-[#EF4444]"
-                                                    : nameValue
-                                                        ? "border-2 border-[#292524]"
-                                                        : "border-[#D7D3D0] focus:border-[#292524]"
-                                                }`}
-                                            placeholder="Enter space name (e.g Conference)"
-                                        />
-                                        {errors.name && <p className="text-[#EF4444] text-xs mt-[8px]">{errors.name.message}</p>}
-                                    </div>
-
-                                    {/* Location Dropdown */}
-                                    <div>
-                                        <label className="block text-sm text-black mb-[8px]">Workspace <span className="text-[#EF4444]">*</span></label>
-                                        <Controller
-                                            control={control}
-                                            name="workspace"
-                                            render={({ field }) => (
-                                                <CustomDropdown {...field} options={locationOptions} placeholder="Choose Workspace" />
-                                            )}
-                                        />
-                                        {errors.workspace && <p className="text-xs text-[#EF4444] mt-[8px]">{errors.workspace.message}</p>}
-                                    </div>
-
-
-                                    {/* Capacity */}
-                                    <div>
-                                        <label className="block text-sm text-black">Capacity <span className="text-[#EF4444]">*</span></label>
-                                        <input
-                                            type="text"
-                                            {...register("capacity")}
-                                            className={`mt-[8px] w-full px-4 py-2 border rounded-md bg-transparent outline-none transition-all
-${errors.capacity
-                                                    ? "border-[#EF4444] focus:ring-[#EF4444]"
-                                                    : capacityValue
-                                                        ? "border-2 border-[#292524]"
-                                                        : "border-[#D7D3D0] focus:border-[#292524]"
-                                                }`}
-                                            placeholder='e.g. "5"'
-                                        />
-                                        {errors.capacity && <p className="text-[#EF4444] text-xs mt-[8px]">{errors.capacity.message}</p>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm text-black">Room Number <span className="text-[#EF4444]">*</span></label>
-                                        <input
-                                            type="text"
-                                            {...register("capacity")}
-                                            className={`mt-[8px] w-full px-4 py-2 border rounded-md bg-transparent outline-none transition-all
-${errors.capacity
-                                                    ? "border-[#EF4444] focus:ring-[#EF4444]"
-                                                    : capacityValue
-                                                        ? "border-2 border-[#292524]"
-                                                        : "border-[#D7D3D0] focus:border-[#292524]"
-                                                }`}
-                                            placeholder='e.g. "2"'
-                                        />
-                                        {errors.capacity && <p className="text-[#EF4444] text-xs mt-[8px]">{errors.capacity.message}</p>}
-                                    </div>
-
-                                    {/* Floor */}
-                                    <div className="mb-[32px]">
-                                        <label className="block text-sm text-black">Floor <span className="text-[#EF4444]">*</span></label>
-                                        <input
-                                            type="text"
-                                            {...register("floor")}
-                                            className={`mt-[8px] w-full px-4 py-2 border rounded-md bg-transparent outline-none transition-all
-${errors.floor
-                                                    ? "border-[#EF4444] focus:ring-[#EF4444]"
-                                                    : floorValue
-                                                        ? "border-2 border-[#292524]"
-                                                        : "border-[#D7D3D0] focus:border-[#292524]"
-                                                }`}
-                                            placeholder='e.g. "1"'
-                                        />
-                                        {errors.floor && <p className="text-[#EF4444] text-xs mt-[8px]">{errors.floor.message}</p>}
-                                    </div>
-                                </div>
-
-                                <div className="relative flex border-b border-gray-200 mb-[18px] mt-[19px]">
-                                    {["Availability Preference"].map((tab) => {
-                                        return (
-                                            <button
-                                                key={tab}
-
-                                                className="relative pb-2 pl-[5px] pr-[20px]  transition-colors duration-200 
-             text-[#000000] font-[700] text-[16px]"
-                                            >
-                                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-
-
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                <WeeklySchedule schedule={schedule}
-                                    toggleDay={toggleDay}
-                                    updateTime={updateTime}
-                                />
-                                <ImageUploader
-                                    file={file}
-                                    handleFileChange={handleFileChange}
-                                    setFile={(file) => {
-                                        setValue("file", file, { shouldValidate: true });
-                                        if (!file) clearErrors("file");
-                                    }}
-                                    error={errors.file?.message as string | undefined}
-                                />
-                                <div className=" md:flex-row flex flex-col  gap-[16px] md:justify-end mt-[40px]">
-
-                                    <button onClick={async () => {
-                                        const isValid = await trigger(); // Validate the form
-                                        if (!isValid) return; // Stop if there are errors
-
-                                        const formValues = watch();
-                                        setPreviewData({
-                                            ...formValues,
-                                            file: formValues.file || null,
-                                        });
-                                        setShowModal(true);
-                                    }} className="border w-full md:w-[250px] p-2 justify-center border-[#134562] hover:bg-[#103a4c] hover:text-white text-[#134562] rounded flex items-center gap-2 text-sm">
-                                        Preview
-                                    </button>
-                                    <button type="submit" className="bg-[#134562] w-full  md:w-[250px] p-2 justify-center  hover:bg-[#103a4c] text-white rounded flex items-center gap-2 text-sm">
-
-                                        Save
-                                    </button>
-                                </div>
-
-                            </form>
-                        </div>)}
+                        <AddRoom />
+                    )}
 
 
                 </motion.div>
