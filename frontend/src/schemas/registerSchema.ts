@@ -2,15 +2,15 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
     fullName: z.string().min(1, "Full name is required"),
-    phoneNumber: z
-        .string()
-        .min(10, "Phone number must be at least 10 digits")
-        .max(15, "Phone number too long"),
+    // phoneNumber: z
+    //     .string()
+    //     .min(10, "Phone number must be at least 10 digits")
+    //     .max(15, "Phone number too long"),
     email: z.string().nonempty("Email is required").
         email("Invalid email address"),
-    role: z.enum(["learner", "manager", "employee", "admin"], {
-        required_error: "Role is required",
-    }),
+    // role: z.enum(["learner", "manager", "employee", "admin"], {
+    //     required_error: "Role is required",
+    // }),
     password: z
         .string()
         .min(8, "Password must be at least 8 characters"),

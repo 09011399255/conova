@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAdmin } from "../../../../contexts/AdminContext";
 import { useUserProfile } from "../../../../hooks/useUserProfile";
+import {  useNavigate } from "react-router-dom";
 
 const AdminNavbar = () => {
   const { userRole } = useAdmin();
   const { data: user } = useUserProfile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
@@ -24,6 +27,8 @@ const AdminNavbar = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const navigate = useNavigate();
 
   return (
     <div className="bg-[#134260] fixed z-[800]  top-0 left-0 right-0    text-white max-940:px-[15px] px-[50px] max-860:px-[10px] py-4  overflow-hidden">
@@ -76,9 +81,39 @@ const AdminNavbar = () => {
               </div>
             </div>
 
-            <div className="w-[20px] h-[20px] ml-[15px] flex items-center justify-center cursor-pointer border border-[#FFFFFF] rounded-full transition duration-200">
-              <ChevronDown className=" text-white w-4 mt-[0.9px]" />
+            <div className="relative">
+              <div
+                onClick={toggleDropdown}
+                className="w-[20px] h-[20px] ml-[15px] flex items-center justify-center cursor-pointer border border-[#FFFFFF] rounded-full transition duration-200"
+              >
+                <ChevronDown
+                  className={`text-white w-4 mt-[0.9px] transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+                    }`}
+                />
+              </div>
+
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-[30px] w-[200px]  bg-white text-black rounded-md shadow-lg z-[1000] overflow-hiddn"
+                  >
+                    <div className="px-4 py-2  font-medium">
+                      {user?.full_name}
+                      <button onClick={() => {
+                        navigate("/login");
+                      }} className="border mt-[10px] w-[100px] border-[#134562]  hover:text-[#fff] bg-[#134562] text-white rounded-[4px] text-center  px-[24px] py-[12px] text-[14px] font-[500]">Logout</button>
+
+                    </div>
+
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+
           </div>
         </div>
 
@@ -100,7 +135,7 @@ const AdminNavbar = () => {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between relative z-[50] max-860:hidden">
+      <div className="mt-4 flex items-center justify-between relative max-860:hidden">
         <div className="text-[32px] font-[700]">
           <h1 className="text-white">
             Welcome,{" "}
@@ -110,7 +145,7 @@ const AdminNavbar = () => {
           </h1>
         </div>
 
-        <div className=" text-xs  flex  items-center gap-[12px] justify-center">
+        <div className=" text-xs relative z-[10] flex  items-center gap-[12px] justify-center">
           <img
             src="/images/wallet.png"
             alt="Wallet"
@@ -184,8 +219,37 @@ const AdminNavbar = () => {
                   </div>
                 </div>
 
-                <div className="w-[20px] h-[20px] ml-[15px] flex items-center justify-center cursor-pointer border border-[#FFFFFF] rounded-full transition duration-200">
-                  <ChevronDown className=" text-white w-4 mt-[0.9px]" />
+                <div className="relative">
+                  <div
+                    onClick={toggleDropdown}
+                    className="w-[20px] h-[20px] ml-[15px] flex items-center justify-center cursor-pointer border border-[#FFFFFF] rounded-full transition duration-200"
+                  >
+                    <ChevronDown
+                      className={`text-white w-4 mt-[0.9px] transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+                        }`}
+                    />
+                  </div>
+
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-[30px] w-[200px]  bg-white text-black rounded-md shadow-lg z-[1000] overflow-hiddn"
+                      >
+                        <div className="px-4 py-2  font-medium">
+                          {user?.full_name}
+                          <button onClick={() => {
+                            navigate("/login");
+                          }} className="border mt-[10px] w-[100px] border-[#134562]  hover:text-[#fff] bg-[#134562] text-white rounded-[4px] text-center  px-[24px] py-[12px] text-[14px] font-[500]">Logout</button>
+
+                        </div>
+
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 

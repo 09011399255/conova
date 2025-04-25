@@ -38,13 +38,12 @@ export default function Register() {
 
   const registerMutation = useMutation({
     mutationFn: (data: RegisterSchema) => {
-      const { phoneNumber, terms, ...stuffApiNeeds } = data;
+      const { terms, ...stuffApiNeeds } = data;
       const payload = {
         full_name: stuffApiNeeds.fullName,
         email: stuffApiNeeds.email,
         password: stuffApiNeeds.password,
         re_password: stuffApiNeeds.confirmPassword,
-        role: stuffApiNeeds.role,
       };
 
       return registerUser(payload);
@@ -145,7 +144,7 @@ export default function Register() {
                 </p>
               )}
             </div>
-            <div className="mb-[16px]">
+            {/* <div className="mb-[16px]">
               <label className="block text-sm text-black">
                 Phone Number <span className="text-[#EF4444]">*</span>
               </label>
@@ -164,7 +163,7 @@ export default function Register() {
                   {errors.phoneNumber.message}
                 </p>
               )}
-            </div>
+            </div> */}
 
             <div className="mb-[16px]">
               <label className="block text-sm text-black">
@@ -193,7 +192,7 @@ export default function Register() {
               error={errors.role?.message}
             /> */}
 
-            <div className="mb-[16px]">
+            {/* <div className="mb-[16px]">
               <label className="block text-sm text-black">
                 Role <span className="text-[#EF4444]">*</span>
               </label>
@@ -221,7 +220,7 @@ export default function Register() {
                   {errors.role.message}
                 </p>
               )}
-            </div>
+            </div> */}
 
             <div className="my-[20px]">
               <label className="block text-sm  text-black">

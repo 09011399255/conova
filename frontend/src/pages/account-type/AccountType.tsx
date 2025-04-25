@@ -4,19 +4,16 @@ import AuthLayout from "../../components/layouts/AuthLayout";
 import AuthContainer from "../../components/layouts/AuthContainer";
 
 export default function AccountType() {
-  const [selectedType, setSelectedType] = useState<
-    "employee" | "learner" | null
-  >(null);
+  const [selectedType, setSelectedType] = useState<"employee">("employee"); 
   const navigate = useNavigate();
 
   const handleSelect = (type: "employee" | "learner") => {
+    if (type === "learner") return; 
     setSelectedType(type);
   };
 
   const handleContinue = () => {
-    if (selectedType) {
-      navigate("/register", { state: { accountType: selectedType } });
-    }
+    navigate("/register", { state: { accountType: selectedType } });
   };
 
   return (
@@ -44,7 +41,7 @@ export default function AccountType() {
                 type="button"
                 onClick={() => handleSelect("employee")}
                 className={`flex flex-col items-center justify-center bg-[#FFFFFF] border-2 rounded-xl px-4 w-32 transition
-    ${selectedType === "employee" ? "border-[#134562]" : "bg-[#FFFFFF]"}`}
+                  ${selectedType === "employee" ? "border-[#134562]" : "bg-[#FFFFFF]"}`}
               >
                 <img
                   src={
@@ -56,11 +53,10 @@ export default function AccountType() {
                   className="w-8 h-8 mb-[20px] mt-[16px]"
                 />
                 <span
-                  className={`text-sm   whitespace-nowrap font-medium ${
-                    selectedType === "employee"
-                      ? "text-[#134562]"
-                      : "text-black"
-                  }`}
+                  className={`text-sm font-medium whitespace-nowrap ${selectedType === "employee"
+                    ? "text-[#134562]"
+                    : "text-black"
+                    }`}
                 >
                   I’m an Employee
                 </span>
@@ -69,23 +65,15 @@ export default function AccountType() {
               <button
                 type="button"
                 onClick={() => handleSelect("learner")}
-                className={`flex flex-col items-center bg-[#FFFFFF] justify-center border-2 rounded-xl p-4 w-32 transition
-    ${selectedType === "learner" ? "border-[#134562] " : "bg-[#FFFFFF]"}`}
+                className="flex flex-col items-center justify-center bg-[#F1F1F1] border-2 border-gray-300 rounded-xl p-4 w-32 cursor-not-allowed opacity-50"
+                disabled
               >
                 <img
-                  src={
-                    selectedType === "learner"
-                      ? "/images/ln2.png"
-                      : "/images/ln1.png"
-                  }
+                  src="/images/ln1.png"
                   alt="Learner Icon"
                   className="w-8 h-8 mb-[20px] mt-[16px]"
                 />
-                <span
-                  className={`text-sm font-medium ${
-                    selectedType === "learner" ? "text-[#134562]" : "text-black"
-                  }`}
-                >
+                <span className="text-sm font-medium text-gray-500">
                   I’m a Learner
                 </span>
               </button>
@@ -93,13 +81,8 @@ export default function AccountType() {
 
             <div className="flex justify-center mt-[40px]">
               <button
-                disabled={!selectedType}
                 onClick={handleContinue}
-                className={`w-full max-w-xs mb-[120px] bg-[#134562] text-white py-2 rounded-md transition ${
-                  !selectedType
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-[#083144]"
-                }`}
+                className="w-full max-w-xs mb-[120px] bg-[#134562] text-white py-2 rounded-md transition hover:bg-[#083144]"
               >
                 Continue
               </button>
