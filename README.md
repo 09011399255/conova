@@ -71,5 +71,5 @@ cd frontend
 ## 🤝 Team
 
 - Backend: Yusuff Abdulhakeem
-- Frontend: Sultan Abanikanda
+- Frontend: Sultan Abanikanda, Bolarinwa Paul
 - UI/UX: Uthman Suarau, Bethan Helen, Oluwatofunmi Ishola
